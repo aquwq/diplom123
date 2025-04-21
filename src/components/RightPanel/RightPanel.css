@@ -1,0 +1,75 @@
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  background-color: #2c2f48;
+  height: 100vh;
+  border-left: 1px solid #ccc;
+  padding: 10px 0;
+  box-sizing: border-box;
+  overflow: hidden; /* Это заменим на авто-прокрутку */
+  margin-right: 0;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto; /* Прокрутка для содержимого */
+}
+
+.participants-section,
+.chat-section {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(60, 60, 90, 0.8);
+  border-radius: 8px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.participants-section::before,
+.chat-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: linear-gradient(to bottom, rgba(44, 47, 72, 0.8), rgba(44, 47, 72, 0));
+  z-index: 1;
+  pointer-events: none;
+}
+
+.participants-section::after,
+.chat-section::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: linear-gradient(to top, rgba(44, 47, 72, 0.8), rgba(44, 47, 72, 0));
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Стили скроллбара */
+.participants-section::-webkit-scrollbar,
+.chat-section::-webkit-scrollbar {
+  width: 8px;
+}
+
+.participants-section::-webkit-scrollbar-thumb,
+.chat-section::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.participants-section::-webkit-scrollbar-thumb:hover,
+.chat-section::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}

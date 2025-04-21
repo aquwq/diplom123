@@ -1,0 +1,61 @@
+.user-info {
+    display: flex; /* Горизонтальное расположение элементов */
+    align-items: center; /* Вертикальное выравнивание */
+    background-color: #1e213a;
+    padding: 10px;
+    margin-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #ccc;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    margin-right: 10px; /* Отступ между аватаркой и текстом */
+  }
+  
+  .user-details {
+    display: flex; /* Расположение текста в одну строку */
+    align-items: center; /* Центрирование по вертикали относительно аватарки */
+    flex: 1; /* Занимает доступное пространство */
+  }
+  
+  .user-name {
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    margin: 0; /* Убираем лишние отступы */
+  }
+  
+  
+  .user-tooltip {
+    position: absolute;
+    top: 100%; /* Под именем */
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    z-index: 1;
+    white-space: nowrap;
+  }
+  
+  .user-tooltip-text p {
+    margin: 5px 0;
+    font-size: 12px;
+  }
+  

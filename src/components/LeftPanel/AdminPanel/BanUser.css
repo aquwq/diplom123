@@ -1,0 +1,33 @@
+.ban-user-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .ban-user-container h2 {
+    color: #dc3545;
+    margin-bottom: 20px;
+  }
+  
+  .ban-user-container input {
+    padding: 10px;
+    width: 250px;
+    margin-bottom: 15px;
+    border: 1px solid #dc3545;
+    border-radius: 5px;
+  }
+  
+  .ban-user-container button {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .ban-user-container button:hover {
+    background-color: #a71d2a;
+  }
+  

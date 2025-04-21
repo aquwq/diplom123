@@ -1,0 +1,116 @@
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  background-color: #2c2f48;
+  color: white;
+  height: 100vh; /* Высота панели занимает весь экран */
+  overflow: hidden; /* Убираем скролл для самой панели */
+  padding: 10px 0; /* Добавляем внутренние отступы сверху и снизу */
+  border-right: 1px solid #ccc;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #1e213a;
+  margin-bottom: 10px; /* Отступ снизу */
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+.channels-header {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  margin-bottom: 10px;
+  margin-left: 20px;
+  margin-right: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.channels-container {
+  flex: 1; /* Распределяем оставшееся пространство */
+  position: relative; /* Для индикатора скролла */
+  overflow-y: auto; /* Включаем вертикальную прокрутку */
+  margin-bottom: 10px;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background: linear-gradient(to top, rgba(44, 47, 72, 1), rgba(44, 47, 72, 0));
+  pointer-events: none; /* Не мешает взаимодействию с контентом */
+  z-index: 1;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between; /* Равномерное расположение кнопок */
+  margin-top: auto; /* Располагает группу кнопок внизу панели */
+  padding: 10px; /* Внутренний отступ */
+}
+
+/* Кнопки */
+.app-button,
+.admin-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 16px;
+  background-color: #4caf50;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s, transform 0.2s;
+  width: 48%; /* Делаем кнопки чуть меньше, чтобы умещались */
+  height: 50px; /* Фиксированная высота кнопок */
+  flex-shrink: 0; /* Не позволяет кнопкам сжиматься */
+}
+
+.app-button:hover,
+.admin-button:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+.app-button:active,
+.admin-button:active {
+  background-color: #3e8e41;
+  transform: scale(0.95);
+}
+
+.blurred {
+  filter: blur(5px);
+  pointer-events: none; /* Отключаем взаимодействие */
+}
+
+/* Анимация для сворачивания/разворачивания списка каналов */
+.channels-container.expanded {
+  max-height: 800px; /* Устанавливаем ограничение по высоте */
+  opacity: 1;
+  visibility: visible;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.channels-container.collapsed {
+  max-height: 0;
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+  padding: 0;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}

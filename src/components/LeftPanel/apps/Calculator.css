@@ -1,0 +1,69 @@
+.calculator {
+    width: 320px;
+    margin: 0 auto;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    color: white;
+    font-family: Arial, sans-serif;
+  }
+  
+  .calculator-display {
+    background-color: #000;
+    color: #0f0;
+    font-size: 2rem;
+    text-align: right;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+  }
+  
+  .calculator-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  
+  .calculator-buttons button {
+    font-size: 1.5rem;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .calculator-buttons button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .operator {
+    background-color: #ff9500;
+    color: white;
+  }
+  
+  .operator:hover {
+    background-color: #e08900;
+  }
+  
+  .equals {
+    background-color: #4cd964;
+    color: white;
+    grid-column: span 2; /* Кнопка занимает две колонки */
+  }
+  
+  .equals:hover {
+    background-color: #3cb252;
+  }
+  
+  .zero {
+    grid-column: span 2; /* Кнопка занимает две колонки */
+    background-color: #505050;
+  }
+  
+  .zero:hover {
+    background-color: #3c3c3c;
+  }
+  
