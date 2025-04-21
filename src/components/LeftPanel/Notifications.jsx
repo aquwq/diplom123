@@ -1,77 +1,17 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import "./Notifications.css";
 import NotificationItem from "./NotificationItem";
+import { useNotifications } from "./AdminPanel/NotificationContext";
 
 const Notifications = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "Новая пара",
-      message: "Через 10 минут начнётся пара по математике.",
-      image: "https://cdn-icons-png.flaticon.com/512/3588/3588294.png",
-      isNew: true,
-    },
-    {
-      id: 2,
-      title: "Новое сообщение",
-      message: "Преподаватель оставил комментарий к вашему заданию.",
-      image: "https://cdn-icons-png.flaticon.com/512/2950/2950661.png",
-      isNew: true,
-    },
-    {
-      id: 3,
-      title: "Обновление расписания",
-      message: "Пара по информатике перенесена на пятницу.",
-      isNew: true,
-    },
-    {
-      id: 4,
-      title: "Новое сообщение",
-      message: "Преподаватель оставил комментарий к вашему заданию.",
-      image: "https://cdn-icons-png.flaticon.com/512/2950/2950661.png",
-      isNew: true,
-    },
-    {
-      id: 5,
-      title: "Обновление расписания",
-      message: "Пара по информатике перенесена на пятницу.",
-      isNew: true,
-    },
-    {
-      id: 6,
-      title: "Новое сообщение",
-      message: "Преподаватель оставил комментарий к вашему заданию.",
-      image: "https://cdn-icons-png.flaticon.com/512/2950/2950661.png",
-      isNew: true,
-    },
-    {
-      id: 7,
-      title: "Обновление расписания",
-      message: "Пара по информатике перенесена на пятницу.",
-      isNew: true,
-    },
-  ]);
+  const { notifications, clearNotifications, markAsRead } = useNotifications();
 
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
+  const toggleDropdown = () => setIsOpen(!isOpen);
 
   const handleNotificationClick = (id) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notif) =>
-        notif.id === id ? { ...notif, isNew: false } : notif
-      )
-    );
+    markAsRead(id);
   };
-
-  const clearNotifications = () => {
-    setNotifications([]);
-  };
-
-  useEffect(() => {
-    // Можно добавить эффект при открытии панели уведомлений
-  }, []);
 
   return (
     <div className="notifications-wrapper">
