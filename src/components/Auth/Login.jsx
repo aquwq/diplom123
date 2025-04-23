@@ -5,14 +5,29 @@ function Login({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (username === "user" && password === "1234") {
-      onLogin();
+  
+    const response = await fetch("http://localhost:8000/accounts/api/token/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username, password })
+    });
+  
+    const data = await response.json();
+  
+    if (response.ok) {
+      // Сохраняем access + refresh токены в localStorage потом надо поменять на куки
+      localStorage.setItem("access", data.access);
+      localStorage.setItem("refresh", data.refresh);
+      onLogin(); // вызываем функцию логина
     } else {
-      alert("Неверный логин или пароль!");
+      alert("Неверный логин или пароль"); // я бы заменил  alert на что-то другое, но не знаю на что и как
     }
   };
+  
 
   return (
     <div className="login-container">
