@@ -28,6 +28,11 @@ const UserInfo = () => {
         const data = await response.json();
         console.log('Данные пользователя:', data); // Логируем полученные данные
         setUser(data);
+
+        if (data?.role) {
+          localStorage.setItem("role", data.role);
+        }
+
       } catch (error) {
         console.error("Ошибка:", error);
       }
@@ -64,15 +69,21 @@ const UserInfo = () => {
         <div className="user-name">{lastName} {initials}</div> {/* Фамилия И.О. */}
 
         {isTooltipVisible && (
-          <div className="user-tooltip">
-            <div className="user-tooltip-text">
-              <p><strong>ФИО:</strong> {user.name}</p>
-              <p><strong>Номер зачётной книжки:</strong> {user.student_number || "Не указано"}</p>
-              <p><strong>Группа:</strong> {user.group ? user.group : "Не указана"}</p>
-              <p><strong>Роль:</strong> {user.role}</p>
-            </div>
-          </div>
-        )}
+  <div className="user-tooltip">
+    <div className="user-tooltip-text">
+      <p><strong>ФИО:</strong> {user.name}</p>
+
+      {user.role === "студент" && (
+        <>
+          <p><strong>Номер зачётной книжки:</strong> {user.student_number || "Не указано"}</p>
+          <p><strong>Группа:</strong> {user.group || "Не указана"}</p>
+        </>
+      )}
+
+      <p><strong>Роль:</strong> {user.role}</p>
+    </div>
+  </div>
+)}
       </div>
       <Notifications /> {/* 👈 вставляем колокольчик */}
     </div>
