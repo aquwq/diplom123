@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import "./styles/global.css";
-import LeftPanel from "./components/LeftPanel/LeftPanel";
-import CenterContent from "./components/CenterContent/CenterContent";
-import RightPanel from "./components/RightPanel/RightPanel";
-import Login from "./components/Auth/Login";
+
+import LoginPage from "./pages/LoginPage";
+import MainPage from "./pages/MainPage";
 import Loader from "./components/Loader/Loader";
 
 function App() {
@@ -12,14 +12,20 @@ function App() {
   const [currentChannel, setCurrentChannel] = useState(null);
   const [isTranslating, setIsTranslating] = useState(false);
   const [isAppMenuOpen, setIsAppMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
-  // Прелоудер исчезнет только когда страница полностью загрузится
   useEffect(() => {
     const handleLoad = () => {
+      const token = localStorage.getItem("access");
+      if (token) {
+        setIsLoggedIn(true);
+        navigate("/app");
+      } else {
+        navigate("/login");
+      }
       setIsLoading(false);
     };
 
-    // Если страница уже загружена
     if (document.readyState === "complete") {
       handleLoad();
     } else {
@@ -30,6 +36,7 @@ function App() {
 
   const handleLogin = () => {
     setIsLoggedIn(true);
+    navigate("/app");
   };
 
   const handleChannelClick = (channelName) => {
@@ -42,33 +49,26 @@ function App() {
     setCurrentChannel(null);
   };
 
-  const toggleAppMenu = () => {
-    setIsAppMenuOpen((prev) => !prev);
-  };
-
   if (isLoading) {
     return <Loader />;
   }
 
-  if (!isLoggedIn) {
-    return <Login onLogin={handleLogin} />;
-  }
-
   return (
-    <div className={`app-container ${isAppMenuOpen ? "blurred" : ""}`}>
-      <LeftPanel onChannelClick={handleChannelClick} />
-      <div className="center-content">
-        <CenterContent 
-          isTranslating={isTranslating} 
-          onCloseTranslating={handleCloseTranslating} 
-          currentChannel={currentChannel} 
-        />
-      </div>
-      <RightPanel 
-        currentChannel={currentChannel} 
-        isTranslating={isTranslating}
+    <Routes>
+      <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+      <Route
+        path="/app"
+        element={
+          <MainPage
+            onChannelClick={handleChannelClick}
+            currentChannel={currentChannel}
+            isTranslating={isTranslating}
+            onCloseTranslating={handleCloseTranslating}
+            isAppMenuOpen={isAppMenuOpen}
+          />
+        }
       />
-    </div>
+    </Routes>
   );
 }
 
