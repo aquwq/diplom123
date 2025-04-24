@@ -5,33 +5,52 @@ import Chat from "./Chat";
 
 function RightPanel({ currentChannel }) {
   const [participants, setParticipants] = useState([]);
+  const [channelName, setChannelName] = useState("");
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    const fetchParticipants = async () => {
-      const token = localStorage.getItem("access");
-      if (!currentChannel) return;
+    if (!currentChannel) return;
 
+    const token = localStorage.getItem("access");
+
+    // Загружаем имя канала
+    const fetchChannelName = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/communication/channels/${currentChannel}/participants/`, {
+        const res = await fetch(`http://localhost:8000/communication/channels/${currentChannel}/`, {
           headers: {
             "Authorization": `Bearer ${token}`,
-          },
+          }
         });
         const data = await res.json();
-        setParticipants(data);
+        setChannelName(data.name);
       } catch (err) {
-        console.error("Ошибка загрузки участников:", err);
+        console.error("Ошибка загрузки названия канала:", err);
       }
     };
 
-    fetchParticipants();
-  }, [currentChannel]);
+    fetchChannelName();
 
-  const messages = [
-    { user: "Пользователь 1", text: "Привет!" },
-    { user: "Пользователь 2", text: "Здравствуйте!" },
-    { user: "Пользователь 3", text: "Как дела?" },
-  ];
+    // Подключаемся к WebSocket
+    const socket = new WebSocket(`ws://localhost:8000/ws/communication/channels/${currentChannel}/?token=${token}`);
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      // Обработка обновления списка участников
+      if (data.type === "participants_update") {
+        console.log("Participants update received:", data.participants);
+        setParticipants(data.participants);
+      }
+    };
+
+    socket.onerror = (e) => {
+      console.error("Ошибка WebSocket:", e);
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, [currentChannel]);
 
   return (
     <div className={`right-panel ${currentChannel ? "active" : ""}`}>
@@ -39,24 +58,20 @@ function RightPanel({ currentChannel }) {
         <div className="content-container">
           <div className="participants-section">
             <h2 className="section-title">
-              Пользователи канала: "{currentChannel}"
+              Пользователи канала: "{channelName}"
             </h2>
-            <ParticipantsList participants={participants.map(p => p.name)} />
+            <ParticipantsList participants={participants} />
           </div>
           <div className="divider" />
           <div className="chat-section">
-            <h2 className="section-title">Чат канала</h2>
-            <Chat messages={messages} />
+            <h2 className="section-title">Чат канала "{channelName}"</h2>
+            <Chat messages={messages} setMessages={setMessages} currentChannel={currentChannel} />
           </div>
         </div>
       ) : (
-          <div className="no-channel-container">
-              <p className="fancy-message">
-                🔮 Выберите канал для общения, чтобы погрузиться в атмосферу NorVoice...
-              </p>
-          </div>
-
-
+        <p className="no-channel-message">
+          Выберите канал, чтобы начать общение
+        </p>
       )}
     </div>
   );

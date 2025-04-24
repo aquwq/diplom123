@@ -1,47 +1,71 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./Chat.css";
 
-function Chat() {
-  const [messages, setMessages] = useState([]);
-  const [text, setText] = useState("");
-  const [media, setMedia] = useState(null);
+function Chat({ messages, setMessages, currentChannel }) {
+  const [input, setInput] = useState("");
+  const ws = useRef(null);
   const messagesEndRef = useRef(null);
 
-  // Загружаем сообщения из localStorage при монтировании компонента
-  useEffect(() => {
-    const storedMessages = JSON.parse(localStorage.getItem("chatMessages")) || [];
-    setMessages(storedMessages);
-  }, []);
-
-  // Сохраняем сообщения в localStorage при изменении сообщений
-  useEffect(() => {
-    if (messages.length > 0) {
-      localStorage.setItem("chatMessages", JSON.stringify(messages));
+  // Отправка сообщения
+  const sendMessage = () => {
+    if (input.trim() && ws.current.readyState === WebSocket.OPEN) {
+      const messageData = { message: input };
+      ws.current.send(JSON.stringify(messageData));
+      setInput("");
     }
-  }, [messages]);
+  };
 
-  const handleSend = () => {
-    if (!text && !media) return;
+  // Отправка по Enter
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
 
-    const newMessage = {
-      user: "Вы",
-      text,
-      media,
+  // WebSocket подключение
+  useEffect(() => {
+    if (!currentChannel) return;
+
+    const token = localStorage.getItem("access");
+    const socket = new WebSocket(
+      `ws://localhost:8000/ws/communication/channels/${currentChannel}/?token=${token}`
+    );
+    ws.current = socket;
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type === "chat_message") {
+        setMessages((prevMessages) => {
+          const isDuplicate = prevMessages.some(
+            (message) => message.text === data.message
+          );
+
+          if (!isDuplicate) {
+            return [
+              ...prevMessages,
+              {
+                user: data.sender,
+                text: data.message,
+              },
+            ];
+          }
+          return prevMessages;
+        });
+      }
     };
 
-    setMessages((prev) => [...prev, newMessage]);
-    setText("");
-    setMedia(null);
-  };
+    socket.onerror = (e) => {
+      console.error("Ошибка WebSocket:", e);
+    };
 
-  const handleMediaChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const fileUrl = URL.createObjectURL(file);
-      setMedia({ url: fileUrl, name: file.name, type: file.type });
-    }
-  };
+    return () => {
+      socket.close();
+    };
+  }, [currentChannel, setMessages]);
 
+  // Автопрокрутка
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -52,42 +76,29 @@ function Chat() {
         {messages.map((message, index) => (
           <div
             key={index}
-            className={`message ${message.user !== "Вы" ? "message-other" : "message-self"}`}
+            className={`message ${
+              message.user === "Вы" ? "message-self" : "message-other"
+            }`}
           >
             <strong>{message.user}:</strong> {message.text}
-            {message.media && (
-              <div className="media-preview">
-                {message.media.type.startsWith("image") ? (
-                  <img src={message.media.url} alt="media" />
-                ) : (
-                  <video src={message.media.url} controls />
-                )}
-              </div>
-            )}
           </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
 
       <div className="chat-input-container">
+        <button className="media-button" title="Прикрепить файл">
+          📎
+        </button>
         <input
           type="text"
           placeholder="Введите сообщение"
           className="chat-input"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              handleSend();
-            }
-          }}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
-        <label className="media-button">
-          📎
-          <input type="file" accept="image/*,video/*" onChange={handleMediaChange} hidden />
-        </label>
-        <button className="send-button" onClick={handleSend}>
+        <button className="send-button" onClick={sendMessage}>
           Отправить
         </button>
       </div>

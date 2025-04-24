@@ -35,10 +35,20 @@
 }
 
 .message {
-  background-color: #1e213a;
   padding: 10px;
   border-radius: 5px;
   word-wrap: break-word;
+  color: white;
+}
+
+.message-self {
+  background-color: #1e213a;
+  align-self: flex-end;
+}
+
+.message-other {
+  background-color: #31355a;
+  align-self: flex-start;
 }
 
 .chat-input-container {
@@ -48,7 +58,6 @@
   background-color: rgba(255, 255, 255, 0.1);
   padding: 10px;
   border-radius: 8px;
-
   flex-wrap: wrap;
   overflow: hidden;
   max-width: 100%;
@@ -57,7 +66,7 @@
 
 .chat-input {
   flex: 1;
-  min-width: 0; /* важно, чтобы не ломался flex */
+  min-width: 0;
   padding: 10px;
   border: none;
   border-radius: 4px;
@@ -112,14 +121,3 @@
   margin-top: 10px;
   border-radius: 6px;
 }
-
-.message-self {
-  background-color: #1e213a; /* Цвет по умолчанию */
-  align-self: flex-end;
-}
-
-.message-other {
-  background-color: #31355a; /* Цвет для сообщений от других */
-  align-self: flex-start;
-}
-
