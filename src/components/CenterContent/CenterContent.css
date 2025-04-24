@@ -5,7 +5,7 @@
     width: 100%;  /* Занимает весь контейнер */
     height: 100%; /* Занимает всю высоту */
     background-color: #2b2b2b;
-    padding: 0; /* Убираем лишние внутренние отступы */
+    padding: 0px; /* Убираем лишние внутренние отступы */
     box-sizing: border-box;
     position: relative;
     

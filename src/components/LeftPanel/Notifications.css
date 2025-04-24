@@ -2,6 +2,13 @@
     position: relative;
     margin-left: auto;
   }
+
+  .notifications-wrapper {
+    position: relative;
+    background: transparent; /* Убирает белый фон */
+    border: none;            /* Убирает возможные рамки */
+    box-shadow: none;        /* Убирает возможные тени */
+  }
   
   .notifications-button {
     background: none;
@@ -35,7 +42,7 @@
   .clear-btn {
     background-color: #ff4d4f;
     border: none;
-    color: white;
+    color: rgb(127, 1, 1);
     padding: 5px 10px;
     font-size: 12px;
     border-radius: 5px;
@@ -79,3 +86,19 @@
     margin-top: 20px;
   }
   
+  .bell-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: #ccc;
+    font-size: 20px;
+  }
+  
+  .bell-button:focus {
+    outline: none;
+  }
+  
+  .bell-button:hover {
+    color: white;
+  }

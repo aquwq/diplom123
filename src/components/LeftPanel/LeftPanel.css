@@ -6,7 +6,7 @@
   height: 100vh; /* Высота панели занимает весь экран */
   overflow: hidden; /* Убираем скролл для самой панели */
   padding: 10px 0; /* Добавляем внутренние отступы сверху и снизу */
-  border-right: 1px solid #ccc;
+  border-right: 2px solid #ffffff;
 }
 
 .user-info {

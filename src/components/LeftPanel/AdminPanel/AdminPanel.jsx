@@ -3,6 +3,7 @@ import "./AdminPanel.css";
 import AddUser from "./AddUser";
 import BanUser from "./BanUser";
 import CreateNotification from "./CreateNotification";
+import ChannelManager from "./ChannelManager";
 
 function AdminPanel({ onClose }) {
   const [action, setAction] = useState(null);
@@ -15,6 +16,8 @@ function AdminPanel({ onClose }) {
         return <BanUser onBack={() => setAction(null)} />;
       case "notify":
         return <CreateNotification onBack={() => setAction(null)} />;
+      case "channels":
+        return <ChannelManager onBack={() => setAction(null)} />;
       default:
         return null;
     }
@@ -28,6 +31,7 @@ function AdminPanel({ onClose }) {
           <button onClick={() => setAction("add")}>Добавить пользователя</button>
           <button onClick={() => setAction("ban")}>Забанить пользователя</button>
           <button onClick={() => setAction("notify")}>Создать уведомление</button>
+          <button onClick={() => setAction("channels")}>Управление каналами</button>
           <button onClick={onClose}>Закрыть</button>
         </>
       ) : (

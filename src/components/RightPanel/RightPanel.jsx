@@ -50,9 +50,13 @@ function RightPanel({ currentChannel }) {
           </div>
         </div>
       ) : (
-        <p className="no-channel-message">
-          Выберите канал, чтобы начать общение
-        </p>
+          <div className="no-channel-container">
+              <p className="fancy-message">
+                🔮 Выберите канал для общения, чтобы погрузиться в атмосферу NorVoice...
+              </p>
+          </div>
+
+
       )}
     </div>
   );

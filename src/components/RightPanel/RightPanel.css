@@ -3,7 +3,7 @@
   flex-direction: column;
   background-color: #2c2f48;
   height: 100vh;
-  border-left: 1px solid #ccc;
+  border-left: 2px solid #ffffff;
   padding: 10px 0;
   box-sizing: border-box;
   overflow: hidden; /* Это заменим на авто-прокрутку */
@@ -73,3 +73,67 @@
 .chat-section::-webkit-scrollbar-thumb:hover {
   background-color: rgba(255, 255, 255, 0.4);
 }
+
+.no-channel-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.fancy-message {
+  margin: 0;
+  padding: 20px;
+  text-align: center;
+  color: #d6d6ff;
+  font-size: 1.3rem;
+  font-style: italic;
+  line-height: 1.5;
+  letter-spacing: 0.5px;
+  text-shadow:
+    0 0 5px #6b6eff,
+    0 0 10px #6b6eff,
+    0 0 15px #8e9dff,
+    0 0 20px #b0b6ff;
+  animation:
+    dreamyGlow 4s ease-in-out infinite alternate,
+    floatAndPulse 6s ease-in-out infinite;
+  transition: all 0.3s ease-in-out;
+}
+
+@keyframes dreamyGlow {
+  0% {
+    text-shadow:
+      0 0 5px #6b6eff,
+      0 0 10px #6b6eff,
+      0 0 15px #8e9dff,
+      0 0 20px #b0b6ff;
+    color: #d6d6ff;
+  }
+  50% {
+    text-shadow:
+      0 0 10px #8b8eff,
+      0 0 20px #a5a9ff,
+      0 0 30px #c3c6ff;
+    color: #f0f0ff;
+  }
+  100% {
+    text-shadow:
+      0 0 5px #6b6eff,
+      0 0 10px #6b6eff,
+      0 0 15px #8e9dff,
+      0 0 20px #b0b6ff;
+    color: #d6d6ff;
+  }
+}
+
+@keyframes floatAndPulse {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.03);
+  }
+}
+
