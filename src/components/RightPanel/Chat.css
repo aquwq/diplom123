@@ -1,25 +1,12 @@
 .chat-container {
   flex: 1;
-  overflow-y: auto; /* Прокрутка для сообщений */
   padding: 10px;
-  width: 100%; /* Растягиваем по всей ширине */
+  width: 100%;
   background-color: rgba(60, 60, 90, 0.8);
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-}
-
-.chat-container::-webkit-scrollbar {
-  width: 8px; /* Ширина скроллбара */
-}
-
-.chat-container::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2); /* Цвет ползунка */
-  border-radius: 4px; /* Скругление */
-}
-
-.chat-container::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.4); /* Цвет при наведении */
+  overflow: hidden;
 }
 
 .chat-messages {
@@ -27,8 +14,24 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-bottom: 10px; /* Отступ от поля ввода */
   overflow-y: auto;
+  overflow-x: hidden;
+  margin-bottom: 10px;
+  max-height: calc(100vh - 200px);
+  padding-right: 8px;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.4);
 }
 
 .message {
@@ -45,16 +48,23 @@
   background-color: rgba(255, 255, 255, 0.1);
   padding: 10px;
   border-radius: 8px;
+
+  flex-wrap: wrap;
+  overflow: hidden;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .chat-input {
   flex: 1;
+  min-width: 0; /* важно, чтобы не ломался flex */
   padding: 10px;
   border: none;
   border-radius: 4px;
   background-color: rgba(255, 255, 255, 0.2);
   color: white;
   outline: none;
+  box-sizing: border-box;
 }
 
 .chat-input::placeholder {
@@ -80,3 +90,36 @@
 .send-button:active {
   background-color: #3e8e41;
 }
+
+.media-button {
+  font-size: 20px;
+  cursor: pointer;
+  background-color: #2e2e4d;
+  color: white;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.media-button:hover {
+  background-color: #3d3d66;
+}
+
+.media-preview img,
+.media-preview video {
+  max-width: 100%;
+  max-height: 200px;
+  margin-top: 10px;
+  border-radius: 6px;
+}
+
+.message-self {
+  background-color: #1e213a; /* Цвет по умолчанию */
+  align-self: flex-end;
+}
+
+.message-other {
+  background-color: #31355a; /* Цвет для сообщений от других */
+  align-self: flex-start;
+}
+
