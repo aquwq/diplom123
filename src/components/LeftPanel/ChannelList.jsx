@@ -1,31 +1,33 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ChannelItem from "./ChannelItem";
 import "./ChannelList.css";
 
 function ChannelList({ onChannelClick }) {
-  const channels = [
-    { id: 1, name: "General" },
-    { id: 2, name: "Announcements" },
-    { id: 3, name: "Help" },
-    { id: 4, name: "Random" },
-    { id: 5, name: "Random2" },
-    { id: 6, name: "Music" },
-{ id: 7, name: "Gaming" },
-{ id: 8, name: "Development" },
-{ id: 9, name: "Design" },
-{ id: 10, name: "Feedback" },
-{ id: 11, name: "Off-Topic" },
-{ id: 12, name: "Tech-Support" },
-{ id: 13, name: "Memes" },
-{ id: 14, name: "Sports" },
-{ id: 15, name: "Movies" },
-{ id: 16, name: "Travel" },
-{ id: 17, name: "Books" },
-{ id: 18, name: "Food" },
-{ id: 19, name: "Fitness" },
-{ id: 20, name: "Study" }
+  const [channels, setChannels] = useState([]);
 
-  ];
+  useEffect(() => {
+    const fetchChannels = async () => {
+      try {
+        const token = localStorage.getItem("access");
+        const response = await fetch("http://localhost:8000/communication/channels/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Ошибка при получении каналов");
+        }
+
+        const data = await response.json();
+        setChannels(data);
+      } catch (error) {
+        console.error("Ошибка загрузки каналов:", error);
+      }
+    };
+
+    fetchChannels();
+  }, []);
 
   return (
     <div className="channel-list">
@@ -33,7 +35,7 @@ function ChannelList({ onChannelClick }) {
         <ChannelItem
           key={channel.id}
           name={channel.name}
-          onClick={() => onChannelClick(channel.name)}
+          onClick={() => onChannelClick(channel.id)} // 👈 передаём id, не name
         />
       ))}
     </div>
