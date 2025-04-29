@@ -3,6 +3,7 @@ import "./CenterContent.css";
 
 export default function CenterContent({ isTranslating, onCloseTranslating, currentChannel }) {
   const videoRef = useRef(null);
+  const audioRef = useRef(null);
   const webcamRef = useRef(null);
   const ws = useRef(null);
   const peers = useRef({});
@@ -14,6 +15,7 @@ export default function CenterContent({ isTranslating, onCloseTranslating, curre
   const [isMicOn, setIsMicOn] = useState(false);
   const [isWebcamOn, setIsWebcamOn] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
+  
 
   useEffect(() => {
     if (!isTranslating || !currentChannel) return;
@@ -53,8 +55,13 @@ export default function CenterContent({ isTranslating, onCloseTranslating, curre
         }
 
         if (signal_type === "answer") {
-          await pc.setRemoteDescription(new RTCSessionDescription(signal_data));
+          if (pc.signalingState === "have-local-offer") {
+            await pc.setRemoteDescription(new RTCSessionDescription(signal_data));
+          } else {
+            console.warn("⚠️ Unexpected signaling state for answer:", pc.signalingState);
+          }
         }
+        
 
         if (signal_type === "ice") {
           try {
@@ -91,9 +98,19 @@ export default function CenterContent({ isTranslating, onCloseTranslating, curre
 
     pc.ontrack = (e) => {
       console.log("🎥 Remote track received from", name);
-      if (videoRef.current && !videoRef.current.srcObject) {
-        videoRef.current.srcObject = e.streams[0];
-      }
+    
+      const stream = e.streams[0];
+      if (!stream) return;
+    
+      stream.getTracks().forEach((track) => {
+        if (track.kind === 'video' && videoRef.current && !videoRef.current.srcObject) {
+          videoRef.current.srcObject = stream;
+        }
+    
+        if (track.kind === 'audio' && audioRef.current && !audioRef.current.srcObject) {
+          audioRef.current.srcObject = stream;
+        }
+      });
     };
 
     peers.current[name] = pc;
@@ -123,7 +140,7 @@ export default function CenterContent({ isTranslating, onCloseTranslating, curre
     for (const [peerId, pc] of Object.entries(peers.current)) {
       const senders = pc.getSenders();
       const streams = [screenStream.current, webcamStream.current, micStream.current];
-
+  
       for (const stream of streams) {
         if (stream) {
           for (const track of stream.getTracks()) {
@@ -136,12 +153,36 @@ export default function CenterContent({ isTranslating, onCloseTranslating, curre
           }
         }
       }
-
+  
+      // Ждём, пока соединение будет stable
+      if (pc.signalingState !== "stable") {
+        await waitForStable(pc);
+      }
+  
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
       sendSignal("offer", peerId, pc.localDescription);
     }
   }
+  
+  // Вспомогательная функция
+  function waitForStable(pc) {
+    return new Promise((resolve) => {
+      if (pc.signalingState === "stable") {
+        return resolve();
+      }
+  
+      const listener = () => {
+        if (pc.signalingState === "stable") {
+          pc.removeEventListener("signalingstatechange", listener);
+          resolve();
+        }
+      };
+  
+      pc.addEventListener("signalingstatechange", listener);
+    });
+  }
+  
 
   function sendSignal(signalType, to, data) {
     if (ws.current?.readyState === WebSocket.OPEN) {
@@ -230,6 +271,9 @@ export default function CenterContent({ isTranslating, onCloseTranslating, curre
           <div className="conference-video">
             <video ref={videoRef} autoPlay playsInline muted />
           </div>
+
+          <audio ref={audioRef} autoPlay playsInline controls={false} />
+
 
           <div className="conference-webcam">
             <video ref={webcamRef} autoPlay playsInline muted />
