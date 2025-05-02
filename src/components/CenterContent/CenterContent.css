@@ -1,179 +1,156 @@
+/* Центр между панелями — растягивается сам */
 .center-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;  /* Занимает весь контейнер */
-    height: 100%; /* Занимает всю высоту */
-    background-color: #2b2b2b;
-    padding: 0px; /* Убираем лишние внутренние отступы */
-    box-sizing: border-box;
-    position: relative;
-    
-    /* Добавляем ограничения по высоте */
-    min-height: 0;
-    max-height: 100vh; /* Ограничиваем максимум высоты на высоту экрана */
-  }
-  
-  /* Конференция */
-  .conference-view {
-    width: 100%;
-    height: 100%;
-    background-color: #3a3a3a;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px; /* Добавлены внутренние отступы */
-    color: #ffffff;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  }
-  
-  /* Конференция видео с полной высотой */
-  /* Видеоэлемент трансляции */
-.conference-video video {
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* Либо cover, если хотите обрезать */
-  border-radius: 10px;
-  background-color: black;
-}
-
-:fullscreen {
-  display: flex !important;
+  display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #000 !important;
+  flex: 1;                   /* Занимает всё доступное пространство */
+  height: 100vh;             /* Высота на весь экран */
+  background-color: #1e1e1e;
+  color: #fff;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+  overflow: visible;         /* Убираем обрезку */
+  padding: 0 40px;           /* Отступы */
+  transition: all 0.3s ease; /* Плавные изменения */
 }
 
-
-
-video:fullscreen {
-  width: 100vw !important;
-  height: 100vh !important;
-  object-fit: contain !important;
+/* С ужатой панелью (panelVisible=true) */
+.center-content.center-collapsed {
+  margin-left: 260px;               /* точная ширина .left-panel */
+  width: calc(100% - 260px);
 }
-  
-  /* Текст внутри видео */
-  .video-placeholder {
-    color: #ffffff;
-    font-size: 1.2rem;
-    text-align: center;
-  }
-  .conference-webcam {
-    margin-top: 10px;
-    display: flex;
-    justify-content: center;
-  }
-  .webcam-video {
-    width: 300px;
-    height: 200px;
-    border-radius: 12px;
-    border: 2px solid #ccc;
-    object-fit: cover;
-  }
-  
-  /* Функции конференции с новой высотой */
-  .conference-functions {
-    width: 100%;
-    height: 30vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    padding: 20px;
-  }
-  
-  /* Кнопка микрофона и экрана */
-  .function-buttons {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-    gap: 20px;
-  }
-  
-  /* Кнопка включения/выключения микрофона */
-  .function-buttons .mic-button {
-    padding: 12px 24px;
-    background-color: #5a5a5a;
-    color: #ffffff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
-  }
-  
-  .function-buttons .mic-button:hover {
-    background-color: #6a6a6a;
-    transform: scale(1.05);
-  }
-  
-  /* Кнопка включения экрана */
-  .function-buttons .screen-button {
-    padding: 12px 24px;
-    background-color: #5a5a5a;
-    color: #ffffff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
-  }
-  
-  .function-buttons .screen-button:hover {
-    background-color: #6a6a6a;
-    transform: scale(1.05);
-  }
-  
-  /* Кнопка возврата */
-  .back-button {
-    padding: 12px 24px;
-    background-color: #5a5a5a;
-    color: #ffffff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    transition: none;
-  }
 
-  /* Размытие и мерцание текста */
-.center-content h1 {
-    font-size: 3rem; /* Размер текста */
-    color: transparent; /* Сам текст станет прозрачным */
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 
-                 0 0 20px rgba(255, 255, 255, 0.5), 
-                 0 0 30px rgba(255, 255, 255, 0.3); /* Размытие вокруг текста */
-    animation: glow 2s ease-in-out infinite, flicker 3s linear infinite; /* Два эффекта */
-    position: relative;
+/* Когда панель скрыта */
+.center-content.center-expanded {
+  margin-left: 0;
+  width: 100%;
+}
+
+.conference-view {
+  width: 100%;  /* Занимает всю ширину контейнера */
+  height: 100%; /* Занимает всю высоту контейнера */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background-color: #2a2a2a;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+  box-sizing: border-box;  /* Это гарантирует, что padding не выйдет за пределы контейнера */
+}
+
+.conference-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.conference-video,
+.conference-webcam {
+  width: 100%;
+  max-width: 800px;
+  aspect-ratio: 16 / 9;
+  background-color: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.conference-video video,
+.conference-webcam video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.conference-functions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.screen-button,
+.mic-button,
+.webcam-button,
+.back-button
+ {
+  background-color: #3a3a3a;
+  color: #fff;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.screen-button:hover,
+.mic-button:hover,
+.webcam-button:hover,
+.back-button:hover {
+  background-color: #505050;
+  transform: scale(1.05);
+}
+
+.screen-button:active,
+.mic-button:active,
+.webcam-button:active,
+.back-button:active {
+  background-color: #666;
+  transform: scale(0.98);
+}
+
+.back-button {
+  margin-top: auto;
+  background-color: #8a2be2;
+  font-weight: bold;
+}
+
+.back-button:hover {
+  background-color: #9f3fff;
+}
+
+  /* центрируем нашу лого-обёртку */
+.logo-wrapper {
+  user-select: none;    /* нельзя выделить */
+  pointer-events: none; /* по логотипу клики не «укладываются» */
+}
+
+/* само лого с мерцанием */
+.logo-animated {
+  width: 370px;      /* вот здесь подберите нужный размер */
+  height: auto;      /* сохраняем пропорции */
+  user-select: none; /* чтобы его нельзя было выделить */
+  pointer-events: none; /* чтобы по нему клики не «тянули» что-то */
+  animation: glow 2s ease-in-out infinite, flicker 3s linear infinite;
+  /* (можете отрегулировать glow/flicker, как нужно) */
+}
+
+/* Плавное свечение */
+@keyframes glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.8))
+            drop-shadow(0 0 15px rgba(255,255,255,0.6))
+            drop-shadow(0 0 30px rgba(255,255,255,0.4));
   }
-  
-  /* Плавное свечение */
-  @keyframes glow {
-    0%, 100% {
-      text-shadow: 0 0 5px rgba(255, 255, 255, 0.8),
-                   0 0 15px rgba(255, 255, 255, 0.6),
-                   0 0 30px rgba(255, 255, 255, 0.4);
-    }
-    50% {
-      text-shadow: 0 0 15px rgba(255, 255, 255, 1),
-                   0 0 25px rgba(255, 255, 255, 0.8),
-                   0 0 45px rgba(255, 255, 255, 0.6);
-    }
+  50% {
+    filter: drop-shadow(0 0 15px rgba(255,255,255,1))
+            drop-shadow(0 0 25px rgba(255,255,255,0.8))
+            drop-shadow(0 0 45px rgba(255,255,255,0.6));
   }
-  
-  /* Эффект мерцания */
-  @keyframes flicker {
-    0% {
-      opacity: 0.9;
-    }
-    50% {
-      opacity: 0.4;
-    }
-    100% {
-      opacity: 0.9;
-    }
-  }
-  
+}
+
+/* Эффект мерцания (прозрачность) */
+@keyframes flicker {
+  0%   { opacity: 0.9; }
+  50%  { opacity: 0.4; }
+  100% { opacity: 0.9; }
+}
+

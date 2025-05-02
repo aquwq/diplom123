@@ -267,18 +267,17 @@ export default function CenterContent({ isTranslating, onCloseTranslating, curre
       {isTranslating ? (
         <div className="conference-view">
           <h2 className="conference-title">Трансляция канала "{currentChannel}"</h2>
-
+  
           <div className="conference-video">
             <video ref={videoRef} autoPlay playsInline muted />
           </div>
-
+  
           <audio ref={audioRef} autoPlay playsInline controls={false} />
-
-
+  
           <div className="conference-webcam">
             <video ref={webcamRef} autoPlay playsInline muted />
           </div>
-
+  
           <div className="conference-functions">
             <button className="screen-button" onClick={startScreenShare}>
               Показать свой экран
@@ -290,13 +289,19 @@ export default function CenterContent({ isTranslating, onCloseTranslating, curre
               {isWebcamOn ? "Выключить вебку" : "Включить вебку"}
             </button>
           </div>
-
           <button className="back-button" onClick={onCloseTranslating}>
             НА ГЛАВНУЮ
           </button>
         </div>
       ) : (
-        <h1>NorVoice</h1>
+        <div className="logo-wrapper">
+          <img
+            src="/logotip.svg"
+            alt="ISITvoice Logo"
+            className="logo-animated"
+            draggable="false"
+          />
+        </div>
       )}
     </div>
   );

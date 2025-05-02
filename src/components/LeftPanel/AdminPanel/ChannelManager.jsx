@@ -1,113 +1,176 @@
+// ChannelManager.jsx
 import React, { useState } from "react";
 import "./ChannelManager.css";
 
+const initialChannels = [
+  { id: 1, name: "Канал 1", description: "Описание канала 1", isPrivate: false },
+  { id: 2, name: "Канал 2", description: "Описание канала 2", isPrivate: true },
+  { id: 3, name: "Канал 3", description: "Описание канала 3", isPrivate: false },
+  // Можно добавить больше каналов
+];
+
 function ChannelManager({ onBack }) {
-  const [channels, setChannels] = useState([
-    {
-      id: 1,
-      name: "Лекция 1",
-      roles: "студент, преподаватель",
-      capacity: 50,
-      expanded: false,
-    },
-    {
-      id: 2,
-      name: "Общий чат",
-      roles: "все",
-      capacity: 100,
-      expanded: false,
-    },
-  ]);
+  const [channels, setChannels] = useState(initialChannels);
+  const [search, setSearch] = useState("");
+  const [expandedId, setExpandedId] = useState(null);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [editingChannel, setEditingChannel] = useState(null);
 
-  const handleAddChannel = () => {
-    const newChannel = {
-      id: Date.now(),
-      name: "Новый канал",
-      roles: "",
-      capacity: 0,
-      expanded: true,
-    };
-    setChannels([newChannel, ...channels]);
+  const filtered = channels.filter(c =>
+    c.name.toLowerCase().includes(search.trim().toLowerCase())
+  );
+
+  const toggleSelect = (id) => {
+    const next = new Set(selectedIds);
+    next.has(id) ? next.delete(id) : next.add(id);
+    setSelectedIds(next);
   };
 
-  const handleDeleteChannel = (id) => {
-    setChannels(channels.filter((channel) => channel.id !== id));
+  const handleDelete = () => {
+    if (selectedIds.size === 0) return;
+    setChannels(channels.filter(c => !selectedIds.has(c.id)));
+    setSelectedIds(new Set());
+    if (expandedId && selectedIds.has(expandedId)) {
+      setExpandedId(null);
+    }
   };
 
-  const handleToggleExpand = (id) => {
-    setChannels(
-      channels.map((ch) =>
-        ch.id === id ? { ...ch, expanded: !ch.expanded } : ch
-      )
+  const handleEdit = (channel) => {
+    setEditingChannel(channel);
+  };
+
+  const handleSave = (e) => {
+    e.preventDefault();
+    const updatedChannels = channels.map(channel => 
+      channel.id === editingChannel.id ? editingChannel : channel
     );
+    setChannels(updatedChannels);
+    setEditingChannel(null);
   };
 
-  const handleChange = (id, field, value) => {
-    setChannels(
-      channels.map((ch) =>
-        ch.id === id ? { ...ch, [field]: value } : ch
-      )
-    );
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setEditingChannel(prev => ({ ...prev, [name]: value }));
   };
 
   return (
     <div className="channel-manager-container">
       <h2>Управление каналами</h2>
 
-      <div className="add-channel-box" onClick={handleAddChannel}>
-        + Создать новый канал
+      <div className="search-box">
+        <input
+          type="text"
+          placeholder="Поиск по имени канала"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
       </div>
 
-      <div className="channel-list-scroll">
-        {channels.map((channel) => (
-          <div key={channel.id} className="channel-item">
-            <div className="channel-header">
-              <span onClick={() => handleToggleExpand(channel.id)}>
-                {channel.name}
-              </span>
-              <button
-                className="delete-button"
-                onClick={() => handleDeleteChannel(channel.id)}
-              >
-                ✖
-              </button>
-            </div>
+      {editingChannel ? (
+        <div className="edit-form">
+          <h3>Редактирование канала</h3>
+          <form onSubmit={handleSave}>
+            <label>
+              Имя канала:
+              <input 
+                type="text" 
+                name="name" 
+                value={editingChannel.name} 
+                onChange={handleChange} 
+              />
+            </label>
+            <label>
+              Описание:
+              <input 
+                type="text" 
+                name="description" 
+                value={editingChannel.description} 
+                onChange={handleChange} 
+              />
+            </label>
+            <label>
+              Приватный:
+              <input 
+                type="checkbox" 
+                name="isPrivate" 
+                checked={editingChannel.isPrivate} 
+                onChange={e => setEditingChannel({ ...editingChannel, isPrivate: e.target.checked })} 
+              />
+            </label>
+            <button type="submit">Сохранить</button>
+            <button type="button" onClick={() => setEditingChannel(null)}>Отменить</button>
+          </form>
+        </div>
+      ) : (
+        <div className="table-wrapper">
+          <table className="channel-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Имя канала</th>
+                <th>Описание</th>
+                <th>Приватность</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(c => (
+                <React.Fragment key={c.id}>
+                  <tr
+                    className={expandedId === c.id ? "expanded-row" : ""}
+                    onClick={() => setExpandedId(expandedId === c.id ? null : c.id)}
+                  >
+                    <td onClick={e => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(c.id)}
+                        onChange={() => toggleSelect(c.id)}
+                      />
+                    </td>
+                    <td>{c.name}</td>
+                    <td>{c.description}</td>
+                    <td>{c.isPrivate ? "Да" : "Нет"}</td>
+                    <td>
+                      <button className="edit-button" onClick={() => handleEdit(c)}>
+                        ⚙️
+                      </button>
+                    </td>
+                  </tr>
+                  {expandedId === c.id && (
+                    <tr className="details-row">
+                      <td colSpan="6">
+                        <div className="details">
+                          <p><strong>ID канала:</strong> {c.id}</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              ))}
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan="6" className="empty-message">
+                    Каналы не найдены
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-            {channel.expanded && (
-              <div className="channel-settings">
-                <input
-                  type="text"
-                  placeholder="Название канала"
-                  value={channel.name}
-                  onChange={(e) =>
-                    handleChange(channel.id, "name", e.target.value)
-                  }
-                />
-                <input
-                  type="text"
-                  placeholder="Роли, которые могут подключаться"
-                  value={channel.roles}
-                  onChange={(e) =>
-                    handleChange(channel.id, "roles", e.target.value)
-                  }
-                />
-                <input
-                  type="number"
-                  placeholder="Максимум участников"
-                  value={channel.capacity}
-                  onChange={(e) =>
-                    handleChange(channel.id, "capacity", e.target.value)
-                  }
-                />
-              </div>
-            )}
-          </div>
-        ))}
+      <div className="buttons-row">
+        <button
+          className="delete-button"
+          disabled={selectedIds.size === 0}
+          onClick={handleDelete}
+        >
+          Удалить выбранные каналы
+        </button>
+        <button className="back-button" onClick={onBack}>
+          Назад
+        </button>
       </div>
-
-      <button className="back-button" onClick={onBack}>
-        Назад
-      </button>
     </div>
   );
 }

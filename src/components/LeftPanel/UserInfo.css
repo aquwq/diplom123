@@ -43,14 +43,13 @@
   
   .user-tooltip {
     position: absolute;
-    top: 100%; /* Под именем */
     left: 0;
     background-color: rgba(0, 0, 0, 0.9);
     color: white;
     padding: 8px 12px;
     border-radius: 5px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    z-index: 1;
+    z-index: 10; /* Увеличен z-index для уверенности, что подсказка будет сверху */
     white-space: nowrap;
   }
   

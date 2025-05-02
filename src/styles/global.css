@@ -11,16 +11,27 @@ body {
   color: white;
 }
 
-/* Основной контейнер приложения */
 .app-container {
   display: grid;
   box-sizing: border-box;
-  grid-template-columns: 1fr 3fr 1fr;
   height: 100vh;
   background: linear-gradient(-45deg, #1e1e2f, #252540, #1a1a2e, #101020);
   background-size: 200% 200%;
   animation: gradientBG 10s ease-in-out infinite;
-  transition: filter 0.7s ease; /* Плавный переход размытия */
+  transition: filter 0.7s ease;
+  grid-template-columns: auto 300px; /* Центр и правая панель */
+}
+
+/* Когда левая панель видна */
+.app-container.sidebar-visible {
+  /* левая панель 260px, центр гибкий, правая 300px */
+  grid-template-columns: 260px auto 300px;
+}
+
+/* Когда левая панель скрыта */
+.app-container.sidebar-hidden {
+  /* левая панель 0, центр занимает всё, правая остаётся 300px */
+  grid-template-columns: 0 auto 300px;
 }
 
 /* Эффект размытия для интерфейса */

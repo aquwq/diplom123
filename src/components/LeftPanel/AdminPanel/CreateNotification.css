@@ -1,21 +1,24 @@
 .create-notification-container {
-  position: relative; /* добавь эту строку */
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
+  position: relative;
+  background: #1e1e2f;
+  backdrop-filter: blur(15px);
   padding: 30px;
-  border-radius: 16px;
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 400px;
   margin: 40px auto;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 .create-notification-container h2 {
   color: #00ffae;
   font-size: 28px;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
 }
 
 .create-notification-container form {
@@ -33,9 +36,17 @@
   border: 1px solid #00ffae;
   background-color: rgba(255, 255, 255, 0.08);
   color: #a38c8c;
-  border-radius: 8px;
+  border-radius: 12px;
   outline: none;
   box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.create-notification-container input:focus,
+.create-notification-container textarea:focus,
+.create-notification-container select:focus {
+  border-color: #00ffd5;
+  box-shadow: 0 0 8px rgba(0, 255, 174, 0.6);
 }
 
 .create-notification-container textarea {
@@ -64,23 +75,30 @@
   color: red;
   cursor: pointer;
   user-select: none;
+  transition: transform 0.2s ease;
+}
+
+.close-button:hover {
+  transform: rotate(90deg);
 }
 
 .submit-button {
   flex: 1;
   padding: 12px;
-  border-radius: 10px;
+  border-radius: 12px;
   font-weight: bold;
   font-size: 16px;
   cursor: pointer;
   border: none;
-}
-
-.submit-button {
   background-color: #00ffae;
   color: black;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
+.submit-button:hover {
+  background-color: #00ffd5;
+  transform: translateY(-3px);
+}
 
 .icon-preview {
   display: flex;
@@ -94,6 +112,11 @@
   height: 60px;
   border-radius: 12px;
   margin-bottom: 6px;
+  transition: transform 0.3s ease;
+}
+
+.icon-preview img:hover {
+  transform: scale(1.1);
 }
 
 .icon-preview p {

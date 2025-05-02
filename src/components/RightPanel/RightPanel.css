@@ -1,21 +1,24 @@
 .right-panel {
-  display: flex;
-  flex-direction: column;
-  background-color: #2c2f48;
+  position: fixed;      /* фиксируем относительно окна */
+  top: 0;
+  right: 0;
+  width: 300px;         /* фиксированная ширина панели */
   height: 100vh;
-  border-left: 2px solid #ffffff;
-  padding: 10px 0;
+  background-color: #1e1e2f;
+  
+
   box-sizing: border-box;
-  overflow: hidden; /* Это заменим на авто-прокрутку */
-  margin-right: 0;
+  overflow: hidden;
+  z-index: 500;         /* чтобы она была над центральной зоной */
 }
 
+/* Контейнер внутри остаётся почти без изменений */
 .content-container {
   display: flex;
   flex-direction: column;
   height: 100%;
-  width: 100%;
-  overflow-y: auto; /* Прокрутка для содержимого */
+  overflow-y: auto;
+ 
 }
 
 .participants-section,
@@ -135,5 +138,58 @@
   50% {
     transform: translateY(-10px) scale(1.03);
   }
+}
+
+
+/* контейнер для состояния “нет канала” */
+.no-channel-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  padding: 0 20px;
+}
+
+/* сам блок с иконкой и текстом */
+.no-channel-block {
+  text-align: center;
+  max-width: 220px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* иконка сверху */
+.no-channel-icon {
+  color: #81d4fa;
+  margin-bottom: 12px;
+  transition: transform 0.3s ease;
+}
+
+.no-channel-icon:hover {
+  transform: scale(1.1);
+}
+
+/* заголовок */
+.no-channel-title {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+/* поясняющий текст */
+.no-channel-subtitle {
+  margin: 0;
+  font-size: 1rem;
+  color: #ccc;
+  line-height: 1.4;
+}
+
+/* простая анимация появления */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 

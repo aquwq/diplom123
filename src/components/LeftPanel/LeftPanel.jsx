@@ -4,81 +4,77 @@ import ChannelList from "./ChannelList";
 import AppMenu from "./AppMenu";
 import AdminPanel from "./AdminPanel/AdminPanel";
 import UserInfo from "./UserInfo";
+import { FiGrid, FiSettings, FiLogOut } from "react-icons/fi";
 
-function LeftPanel({ onChannelClick, onAdminPanelClick }) {
+function LeftPanel({
+  onChannelClick,
+  panelVisible,             // из MainPage
+  togglePanelVisibility     // из MainPage
+}) {
   const [showAppMenu, setShowAppMenu] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [channelsVisible, setChannelsVisible] = useState(true);
+  const [role, setRole] = useState(localStorage.getItem("role") || "");
 
-  const [role, setRole] = useState(localStorage.getItem("role") || ""); // Считываем роль из localStorage с дефолтным значением ""
-
-  // Обновляем роль при изменении в localStorage
   useEffect(() => {
-    const roleFromStorage = localStorage.getItem("role");
-    if (roleFromStorage) {
-      setRole(roleFromStorage);
-    }
+    const r = localStorage.getItem("role");
+    if (r) setRole(r);
   }, []);
-
-  const toggleAppMenu = () => {
-    setShowAppMenu(!showAppMenu);
-  };
-
-  const toggleAdminPanel = () => {
-    setShowAdminPanel(!showAdminPanel);
-  };
-
-  const handleAdminClick = () => {
-    toggleAdminPanel();
-  };
-
-  const toggleChannelsVisibility = () => {
-    setChannelsVisible(!channelsVisible);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
-    localStorage.removeItem("role");
-    window.location.reload(); // Перезагрузка страницы после выхода
-  };
 
   return (
     <>
-      <div className={`left-panel ${showAppMenu || showAdminPanel ? "blurred" : ""}`}>
-        <UserInfo onTooltipToggle={(state) => {}} />
+      {/* Бургер всегда */}
+      <button className="burger-button" onClick={togglePanelVisibility}>
+        ☰
+      </button>
 
-        <div className="channels-header" onClick={toggleChannelsVisibility}>
-          Каналы {channelsVisible ? "▲" : "▼"}
+      <aside
+        className={`left-panel sidebar ${
+          !panelVisible ? "hidden-panel" : ""
+        } ${showAppMenu || showAdminPanel ? "blurred" : ""}`}
+      >
+        <div className="panel-header">
+          <span className="logo">💬</span>
+          <h1 className="app-title">ISITvoice</h1>
         </div>
 
-        <div className={`channels-container ${channelsVisible ? "expanded" : "collapsed"}`}>
-          <ChannelList onChannelClick={onChannelClick} />
-          <div className="scroll-indicator"></div>
+        <div className="channel-section">
+          <div className="channels-header" onClick={() => setChannelsVisible(v => !v)}>
+            Каналы {channelsVisible ? "▲" : "▼"}
+          </div>
+          <div className={`channels-container ${channelsVisible ? "expanded" : "collapsed"}`}>
+            <ChannelList onChannelClick={onChannelClick} />
+            <div className="scroll-indicator" />
+          </div>
         </div>
 
-        <div className="button-group">
-          <button className="app-button" onClick={toggleAppMenu} style={{ width: role !== "студент" ? "48%" : "100%" }}>
-            Приложения
+        <div className="icon-buttons">
+          <button className="icon-button app-button" onClick={() => setShowAppMenu(m => !m)} title="Приложения">
+            <FiGrid size={20} />
           </button>
-
-          {/* Кнопка "Панель администратора" видна всем, кроме студентов */}
           {role && role !== "студент" && (
-            <button className="admin-button" onClick={handleAdminClick}>
-              Панель администратора
+            <button className="icon-button admin-button" onClick={() => setShowAdminPanel(m => !m)} title="Админка">
+              <FiSettings size={20} />
             </button>
           )}
         </div>
 
-        <div className="logout-section">
-          <button className="logout-button" onClick={handleLogout}>
-            Выйти из аккаунта
+        <div className="bottom-section">
+          <button className="icon-button logout-button" onClick={() => {
+            localStorage.clear();
+            window.location.reload();
+          }} title="Выйти">
+            <FiLogOut size={20} />
           </button>
         </div>
-      </div>
 
-      {showAppMenu && <AppMenu onClose={toggleAppMenu} />}
-      {showAdminPanel && <AdminPanel onClose={toggleAdminPanel} />}
+        <div className="userinfo-container">
+          <UserInfo onTooltipToggle={() => {}} />
+        </div>
+      </aside>
+
+      {showAppMenu && <AppMenu onClose={() => setShowAppMenu(false)} />}
+      {showAdminPanel && <AdminPanel onClose={() => setShowAdminPanel(false)} />}
     </>
   );
 }

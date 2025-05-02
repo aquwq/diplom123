@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import ChannelItem from "./ChannelItem";
 import "./ChannelList.css";
 
-function ChannelList({ onChannelClick }) {
+function ChannelList({ onChannelClick, onChannelConnect }) {
   const [channels, setChannels] = useState([]);
+  const [activeChannel, setActiveChannel] = useState(null);
+  const [connectedChannelId, setConnectedChannelId] = useState(null);
 
   useEffect(() => {
     const fetchChannels = async () => {
@@ -29,13 +31,31 @@ function ChannelList({ onChannelClick }) {
     fetchChannels();
   }, []);
 
+  const handleChannelClick = (id) => {
+    setActiveChannel(id);
+    onChannelClick(id);
+  };
+
+  const handleConnectClick = (id) => {
+    if (connectedChannelId === id) {
+      setConnectedChannelId(null); // Отключаемся
+      onChannelConnect(null); // Передаём null для отключения
+    } else {
+      setConnectedChannelId(id); // Подключаемся
+      onChannelConnect(id);
+    }
+  };
+
   return (
     <div className="channel-list">
       {channels.map((channel) => (
         <ChannelItem
           key={channel.id}
           name={channel.name}
-          onClick={() => onChannelClick(channel.id)} // 👈 передаём id, не name
+          isActive={channel.id === activeChannel}
+          isConnected={channel.id === connectedChannelId}
+          onClick={() => handleChannelClick(channel.id)}
+          onConnect={() => handleConnectClick(channel.id)}
         />
       ))}
     </div>

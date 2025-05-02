@@ -1,15 +1,47 @@
 .channel-item {
-    padding: 10px 15px;
-    margin: 5px 0;
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 5px;
-    color: rgba(0, 0, 0, 0.8);;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .channel-item:hover {
-    background-color: rgba(80, 80, 120, 0.9);
-  }
-  
+  padding: 10px 15px;
+  margin: 5px 0;
+  background-color: rgba(60, 60, 90, 0.8);
+  border-radius: 5px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.channel-item:hover {
+  background-color: rgba(80, 80, 120, 0.9);
+}
+
+.channel-item.active {
+  background-color: rgba(80, 120, 255, 0.8); /* Изменим фон для активного канала */
+}
+
+.connect-button {
+  background-color: green;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.connect-button:hover {
+  background-color: darkgreen;
+}
+
+.disconnect-button {
+  background-color: crimson;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.disconnect-button:hover {
+  background-color: darkred;
+}

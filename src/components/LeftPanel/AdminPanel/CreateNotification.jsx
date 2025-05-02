@@ -25,13 +25,11 @@ function CreateNotification({ onBack }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     addNotification({
       title,
       message,
       image,
     });
-
     alert("Уведомление отправлено");
     onBack();
   };
@@ -41,9 +39,7 @@ function CreateNotification({ onBack }) {
       <div className="close-button" onClick={onBack}>
         ×
       </div>
-
       <h2>Создать уведомление</h2>
-
       <form onSubmit={handleSubmit}>
         <input
           type="text"
