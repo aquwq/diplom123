@@ -77,6 +77,31 @@ body, html {
   box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4);
 }
 
+.login-form select {
+  padding: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  outline: none;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.login-form select:focus {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #00c6ff; /* Плавный синий цвет на фокус */
+}
+
+.login-form select option {
+  background-color: #333;
+  color: #fff;
+}
+
+.login-form select option:hover {
+  background-color: #00c6ff;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -88,4 +113,33 @@ body, html {
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+/* Модальное окно после регистрации */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(30, 30, 47, 0.8);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 15px;
+  padding: 30px 40px;
+  color: white;
+  font-size: 1.1rem;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  animation: slideUp 0.5s ease forwards;
+  max-width: 320px;
+  width: 90%;
 }

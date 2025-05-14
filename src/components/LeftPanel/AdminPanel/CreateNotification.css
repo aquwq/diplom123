@@ -78,9 +78,6 @@
   transition: transform 0.2s ease;
 }
 
-.close-button:hover {
-  transform: rotate(90deg);
-}
 
 .submit-button {
   flex: 1;

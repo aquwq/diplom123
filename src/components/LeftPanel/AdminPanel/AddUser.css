@@ -16,12 +16,11 @@
 }
 /* Обёртка таблицы — фиксированная высота + скролл */
 .table-wrapper {
-  max-height: 50vh;      /* например, 50% высоты экрана */
-  overflow-y: auto;      /* вертикальный скролл при переполнении */
-  border: 1px solid #2c2c3e;
-  border-radius: 4px;
-  background: #1e1e2f;
-  padding: 5px;
+  max-height: calc(4 * 40px); /* 4 строки, каждая по 40px */
+  overflow-y: auto; /* Добавляем вертикальную прокрутку */
+  border: 1px solid #ddd; /* Для видимости границ контейнера */
+  border-radius: 8px; /* Скругление углов */
+  padding: 10px;
 }
 
 /* Чтобы скроллбар был аккуратнее */
@@ -59,8 +58,11 @@
 }
 
 .table-wrapper {
-  overflow-x: auto;
+  max-height: calc(4 * 40px);
+  overflow-y: auto;    /* только по вертикали */
+  overflow-x: hidden;  /* горизонтальную прокрутку убираем */
 }
+
 
 .user-table {
   width: 100%;
@@ -244,4 +246,114 @@
 
 .edit-form button:hover {
   background: #29b6f6;
+}
+
+.edit-form label {
+  display: block;
+  margin-bottom: 10px;
+  color: #ccc;
+}
+
+.edit-form input[type="text"],
+.edit-form input[type="email"] {
+  width: 100%;
+  padding: 6px 10px;
+  margin-top: 4px;
+  background: #2e2e40;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.edit-form input[type="checkbox"] {
+  margin-left: 10px;
+}
+
+.edit-form button {
+  margin-right: 10px;
+  background: #4fc3f7;
+  border: none;
+  padding: 6px 12px;
+  color: #000;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.edit-button {
+  background: transparent;
+  border: none;
+  color: #4fc3f7;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.details {
+  background: #2a2a3d;
+  padding: 10px;
+  border-radius: 6px;
+  color: #ccc;
+  line-height: 1.5;
+}
+
+.new-user {
+  background-color: #147918; /* Зеленый фон для новых пользователей */
+}
+
+.new-user td {
+  font-weight: bold;
+}
+
+.new-user button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.new-user button:hover {
+  background-color: #388e3c;
+}
+
+.confirm-modal {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+.confirm-modal button {
+  margin: 5px;
+}
+
+/* компактная кнопка-иконка для подтверждения */
+.approve-button {
+  background: #4caf50;        /* зелёный фон */
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  color: white;
+  margin-left: 8px;           /* отступ от шестерёнки */
+}
+
+.approve-button:hover {
+  background: #bed1bf;
+}
+
+/* Подсветка для новых (неактивных) пользователей */
+.user-table tr.new-user {
+  border: 5px solid #1e6020; /* или другой зелёный оттенок */
+}
+
+/* Чтобы рамка не «съедала» ширину, можно немного подвинуть ячейки внутрь */
+.user-table tr.new-user td {
+  position: relative;
+  z-index: 1;
 }

@@ -1,0 +1,52 @@
+.user-stream-view {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #1e1e1e;
+    color: white;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  .stream-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .close-button2 {
+    background-color: #8a2be2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .close-button2:hover {
+    background-color: #9f3fff;
+  }
+  
+  .streams-container {
+    display: flex;
+    gap: 20px;
+    height: 100%;
+  }
+  
+  .stream-box {
+    flex: 1;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .stream-box video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
