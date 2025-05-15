@@ -1,59 +1,112 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./UserStreamView.css";
 
-export default function UserStreamView({ user, screenStream, webcamStream, onClose }) {
-  // Ссылки на видео элементы
-  const screenVideoRef = useRef(null);
-  const webcamVideoRef = useRef(null);
+export default function UserStreamView({
+  user,
+  screenStream,
+  webcamStream,
+  onClose,
+}) {
+  const sRef = useRef();
+  const wRef = useRef();
+  const [showFsHint, setShowFsHint] = useState(false);
+  const [volume, setVolume] = useState(1); // Ползунок громкости
+  const [isMuted, setIsMuted] = useState(false); // Состояние "замутить"
 
-  // Устанавливаем потоки, когда они изменяются
   useEffect(() => {
-    console.log("🖥️ Экранный поток в UserStreamView:", screenStream);
-    console.log("📸 Веб-кам поток в UserStreamView:", webcamStream);
-
-    if (screenStream instanceof MediaStream && screenVideoRef.current) {
-      screenVideoRef.current.srcObject = screenStream;
-    } else {
-      console.warn("⚠️ Экранный поток не получен!");
+    if (sRef.current) {
+      sRef.current.srcObject = screenStream || null;
+      sRef.current.volume = volume;
+      sRef.current.muted = isMuted;
     }
-
-    if (webcamStream instanceof MediaStream && webcamVideoRef.current) {
-      webcamVideoRef.current.srcObject = webcamStream;
-    } else {
-      console.warn("⚠️ Веб-кам поток не получен!");
+    if (wRef.current) {
+      wRef.current.srcObject = webcamStream || null;
+      wRef.current.volume = volume;
+      wRef.current.muted = isMuted;
     }
-  }, [screenStream, webcamStream]);
+  }, [screenStream, webcamStream, volume, isMuted]);
 
-  // Проверяем, есть ли хотя бы один активный поток
-  const hasActiveStreams = screenStream || webcamStream;
+  useEffect(() => {
+    const onChange = () => setShowFsHint(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  const toFullscreen = (ref) => {
+    if (ref.current?.requestFullscreen) ref.current.requestFullscreen();
+  };
+
+  const handleVolumeChange = (e) => {
+    const newVolume = parseFloat(e.target.value);
+    setVolume(newVolume);
+  };
+
+  const toggleMute = () => {
+    setIsMuted((prev) => !prev);
+  };
 
   return (
     <div className="user-stream-view">
-      <div className="stream-header">
-        <h2>Трансляция пользователя: {user}</h2>
-        <button onClick={onClose} className="close-button">
-          Вернуться назад
+      <button className="close-button" onClick={onClose}>
+        Закрыть
+      </button>
+      <h3>Трансляция: {user}</h3>
+
+      {screenStream ? (
+        <div className="stream-box">
+          <h4>Экран</h4>
+          <video
+            ref={sRef}
+            autoPlay
+            playsInline
+            controls={false}
+            onDoubleClick={() => toFullscreen(sRef)}
+          />
+        </div>
+      ) : (
+        <p>Экран не транслируется</p>
+      )}
+
+      {webcamStream ? (
+        <div className="stream-box">
+          <h4>Вебкамера</h4>
+          <video
+            ref={wRef}
+            autoPlay
+            playsInline
+            muted
+            onDoubleClick={() => toFullscreen(wRef)}
+          />
+        </div>
+      ) : (
+        <p>Вебкамера не включена</p>
+      )}
+
+      <div className="controls-wrapper">
+        <label htmlFor="volume-slider">Громкость голоса:</label>
+        <input
+          id="volume-slider"
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value={volume}
+          onChange={handleVolumeChange}
+        />
+        <button
+          className={`mute-button ${isMuted ? "muted" : ""}`}
+          onClick={toggleMute}
+        >
+          {isMuted ? "Размутить" : "Замутить"}
         </button>
       </div>
 
-      <div className="streams-container">
-        {hasActiveStreams ? (
-          <>
-            {screenStream && (
-              <div className="stream-box">
-                <video ref={screenVideoRef} autoPlay playsInline muted />
-              </div>
-            )}
-            {webcamStream && (
-              <div className="stream-box">
-                <video ref={webcamVideoRef} autoPlay playsInline muted />
-              </div>
-            )}
-          </>
-        ) : (
-          <p>Нет активных трансляций</p>
-        )}
-      </div>
+      {showFsHint && (
+        <div className="fs-hint">
+          Чтобы выйти из полноэкранного режима, нажмите Esc
+        </div>
+      )}
     </div>
   );
 }

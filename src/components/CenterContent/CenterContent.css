@@ -1,220 +1,143 @@
-/* Центр между панелями — растягивается сам */
+/* CenterContent.css */
+
 .center-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
   height: 100vh;
-  background-color: #1e1e1e;
-  color: #fff;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  box-sizing: border-box;
-  padding: 0 20px; /* Меньше паддинга */
-  overflow: hidden; /* Скрываем горизонтальный скролл */
+  display: flex;
+  flex-direction: column;
+  background: #1e1e1e;
+  overflow: hidden;
+  transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
-/* С ужатой панелью (panelVisible=true) */
-.center-content.center-collapsed {
-  margin-left: 260px;
+/* когда левая панель открыта, контент сдвигается */
+.center-content.with-panel {
+  margin-left: 260px;           /* ширина панели */
   width: calc(100% - 260px);
 }
 
-/* Когда панель скрыта */
-.center-content.center-expanded {
+/* когда левая панель скрыта — контент занимает всю ширину */
+.center-content.full-width {
   margin-left: 0;
   width: 100%;
 }
 
-/* Основная область трансляции */
+/* Логотип по центру, когда не в трансляции */
+.center-content:not(.translating) .logo-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.center-content.translating .logo-wrapper {
+  display: none;
+}
+
+/* Сетка conference-view */
 .conference-view {
-  width: 100%;
-  max-width: 1200px; /* Ограничиваем максимальную ширину */
+  display: grid;
+  grid-template-areas:
+    "title   title"
+    "tiles   stream"
+    "controls controls";
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: 16px;
   height: 100%;
+  padding: 24px;
+  background: #2a2a2a;
+  box-sizing: border-box;
+}
+
+/* Заголовок */
+.conference-title {
+  grid-area: title;
+  margin: 0;
+  color: #fff;
+  text-align: center;
+}
+
+/* Левая колонка */
+.user-tiles-container {
+  grid-area: tiles;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  padding: 20px;
-  background-color: #2a2a2a;
-  border-radius: 16px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
-  box-sizing: border-box;
-  overflow: hidden; /* Убираем лишнее */
-}
-
-/* Заголовок конференции */
-.conference-title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #ffffff;
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-/* Видео-окна трансляции и вебкамеры */
-.conference-video,
-.conference-webcam {
-  width: 100%;
-  max-width: 800px;
-  aspect-ratio: 16 / 9;
-  background-color: #000;
-  border-radius: 12px;
+  background: #1e1e1e;
+  border-radius: 8px;
   overflow: hidden;
+}
+.user-tiles-container .user-tiles {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Правая колонка */
+.user-stream-wrapper {
+  grid-area: stream;
   display: flex;
+  flex-direction: column;
+  background: #1e1e1e;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.user-stream-wrapper > * {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Нижняя панель */
+.controls {
+  grid-area: controls;
+  display: flex;
+  gap: 12px;
   justify-content: center;
   align-items: center;
 }
-
-.conference-video video,
-.conference-webcam video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Кнопки управления */
-.conference-functions {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-
-.screen-button,
-.mic-button,
-.webcam-button,
-.back-button {
-  background-color: #3a3a3a;
+.controls button {
+  flex: 1 1 140px;
+  max-width: 180px;
+  padding: 12px;
+  background: #3a3a3a;
   color: #fff;
-  padding: 12px 20px;
   border: none;
   border-radius: 8px;
-  font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition: 0.2s;
+}
+.controls button:hover {
+  background: #505050;
+  transform: scale(1.03);
+}
+.controls .back-button {
+  background: #8a2be2;
+}
+.controls .back-button:hover {
+  background: #9f3fff;
 }
 
-.screen-button:hover,
-.mic-button:hover,
-.webcam-button:hover,
-.back-button:hover {
-  background-color: #505050;
-  transform: scale(1.05);
-}
-
-.screen-button:active,
-.mic-button:active,
-.webcam-button:active,
-.back-button:active {
-  background-color: #666;
-  transform: scale(0.98);
-}
-
-.back-button {
-  margin-top: auto;
-  background-color: #8a2be2;
-  font-weight: bold;
-}
-
-.back-button:hover {
-  background-color: #9f3fff;
-}
-
-/* Центрируем нашу лого-обёртку */
-.logo-wrapper {
-  user-select: none;
-  pointer-events: none;
-}
-
-/* Лого с мерцанием */
+/* Анимированный логотип */
 .logo-animated {
-  width: 370px;
-  height: auto;
-  user-select: none;
+  width: 360px;
   pointer-events: none;
-  animation: glow 2s ease-in-out infinite, flicker 3s linear infinite;
+  user-select: none;
+  animation: glow 2s infinite ease-in-out, flicker 3s infinite linear;
 }
 
-/* Плавное свечение */
 @keyframes glow {
-  0%, 100% {
-    filter: drop-shadow(0 0 5px rgba(255,255,255,0.8))
-            drop-shadow(0 0 15px rgba(255,255,255,0.6))
-            drop-shadow(0 0 30px rgba(255,255,255,0.4));
+  0%,100% {
+    filter:
+      drop-shadow(0 0 5px rgba(255,255,255,0.8))
+      drop-shadow(0 0 15px rgba(255,255,255,0.6))
+      drop-shadow(0 0 30px rgba(255,255,255,0.4));
   }
   50% {
-    filter: drop-shadow(0 0 15px rgba(255,255,255,1))
-            drop-shadow(0 0 25px rgba(255,255,255,0.8))
-            drop-shadow(0 0 45px rgba(255,255,255,0.6));
+    filter:
+      drop-shadow(0 0 15px rgba(255,255,255,1))
+      drop-shadow(0 0 25px rgba(255,255,255,0.8))
+      drop-shadow(0 0 45px rgba(255,255,255,0.6));
   }
 }
-
-/* Эффект мерцания (прозрачность) */
 @keyframes flicker {
   0%   { opacity: 0.9; }
   50%  { opacity: 0.4; }
   100% { opacity: 0.9; }
-}
-
-/* 🔥 Область с пользователями */
-.user-tiles-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 15px;
-  background-color: #333;
-  padding: 10px;
-  border-radius: 12px;
-  overflow-y: auto;
-  max-height: calc(100vh - 100px);
-  margin: 0 20px; /* Добавляем отступы слева и справа */
-  box-sizing: border-box; /* Учитываем паддинги в ширине */
-}
-
-
-/* Стиль для каждого квадратика с пользователем */
-.user-tile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: #444;
-  border-radius: 8px;
-  padding: 10px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.user-tile.active {
-  background-color: #009688;
-}
-
-.user-tile:hover {
-  background-color: #555;
-}
-
-.user-avatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  margin-bottom: 8px;
-}
-
-.user-name {
-  font-weight: bold;
-  color: #ffffff;
-  text-align: center;
-}
-
-.user-lists {
-width: max-content;
-}
-
-/* Скрыть логотип при трансляции */
-.center-content .logo-wrapper {
-  display: none;
-}
-
-/* Показывать логотип, если нет трансляции */
-.center-content:not(.isTranslating) .logo-wrapper {
-  display: block;
 }

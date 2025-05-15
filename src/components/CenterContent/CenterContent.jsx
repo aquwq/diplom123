@@ -1,301 +1,240 @@
+// CenterContent.jsx
 import React, { useState, useEffect, useRef } from "react";
 import "./CenterContent.css";
 import UserTiles from "./UserTiles";
 import UserStreamView from "./UserStreamView";
 
-export default function CenterContent({ isTranslating, onCloseTranslating, currentChannel }) {
-  // 🔷 Refs
-  const videoRef = useRef(null);
-  const audioRef = useRef(null);
+export default function CenterContent({
+  isTranslating,
+  onCloseTranslating,
+  currentChannel,
+  panelVisible,
+}) {
+  const username = localStorage.getItem("username");
+  const token = localStorage.getItem("access");
+
   const ws = useRef(null);
   const peers = useRef({});
-  const screenStream = useRef(null);
-  const webcamStream = useRef(null);
   const micStream = useRef(null);
+  const webcamStream = useRef(null);
+  const screenStream = useRef(null);
 
-  // 🔷 States
   const [isMicOn, setIsMicOn] = useState(false);
   const [isWebcamOn, setIsWebcamOn] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
-  const [participants, setParticipants] = useState([]);
-  const [activeUser, setActiveUser] = useState(null);
+  const [participants, setParticipants] = useState([]);       // ["alice","bob",...]
+  const [activeUser, setActiveUser] = useState(null);         // { username, stream }
+  const [streamsMap, setStreamsMap] = useState({});           // { alice: MediaStream, ... }
 
-  const token = localStorage.getItem("access");
-
-  // 🔷 WebSocket Setup
+  // ─── WebSocket + signaling ───────────────────────────────────
   useEffect(() => {
     if (!isTranslating || !currentChannel) return;
-
     ws.current = new WebSocket(
       `ws://localhost:8000/ws/communication/channels/${currentChannel}/?token=${token}`
     );
-
-    ws.current.onopen = () => {
-      console.log("✅ WebSocket connected");
-    };
-
+    ws.current.onopen = () => console.log("✅ WS connected");
+    ws.current.onerror = e => console.error("❌ WS error", e);
     ws.current.onmessage = async ({ data }) => {
       const msg = JSON.parse(data);
-      console.log("📨 WS received:", msg);
-
       if (msg.type === "participants_update") {
         setParticipants(msg.participants);
-        msg.participants.forEach((name) => {
-          if (!peers.current[name] && name !== currentChannel) {
-            createPeer(name);
-          }
+        msg.participants.forEach(name => {
+          if (!peers.current[name] && name !== msg.you) createPeer(name);
         });
       }
-
       if (msg.type === "signal") {
         const { from, signal_type, signal_data } = msg;
-        if (from === currentChannel) return;
-
         const pc = peers.current[from];
-        if (!pc) return console.warn("⚠️ No peer for", from);
-
+        if (!pc) return;
         if (signal_type === "offer") {
           await pc.setRemoteDescription(new RTCSessionDescription(signal_data));
           const answer = await pc.createAnswer();
           await pc.setLocalDescription(answer);
           sendSignal("answer", from, pc.localDescription);
-        }
-
-        if (signal_type === "answer" && pc.signalingState === "have-local-offer") {
+        } else if (signal_type === "answer" && pc.signalingState === "have-local-offer") {
           await pc.setRemoteDescription(new RTCSessionDescription(signal_data));
-        }
-
-        if (signal_type === "ice" && pc.remoteDescription) {
-          try {
-            await pc.addIceCandidate(new RTCIceCandidate(signal_data));
-          } catch (err) {
-            console.error("❌ ICE add failed:", err);
-          }
+        } else if (signal_type === "ice" && pc.remoteDescription) {
+          await pc.addIceCandidate(new RTCIceCandidate(signal_data));
         }
       }
     };
-
-    ws.current.onerror = (err) => {
-      console.error("❌ WebSocket error:", err);
-    };
-
     return () => {
-      Object.values(peers.current).forEach((pc) => pc.close());
+      Object.values(peers.current).forEach(pc => pc.close());
       peers.current = {};
-      ws.current && ws.current.close();
+      ws.current?.close();
       stopAllStreams();
     };
   }, [isTranslating, currentChannel, token]);
 
-  // 🔷 Peer Connection Logic
+  // ─── Создание peer и добавление локальных треков ────────────────
   async function createPeer(name) {
-    const pc = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-    });
-
-    pc.onicecandidate = (e) => {
+    const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+    pc.onicecandidate = e => {
       if (e.candidate) sendSignal("ice", name, e.candidate.toJSON());
     };
-
-    pc.ontrack = (e) => {
+    pc.ontrack = e => {
       const stream = e.streams[0];
       if (!stream) return;
-
-      if (!peers.current[name].streams) {
-        peers.current[name].streams = [];
-      }
-
-      peers.current[name].streams.push(stream);
-
-      stream.getTracks().forEach((track) => {
-        if (track.kind === "video" && !videoRef.current.srcObject) {
-          videoRef.current.srcObject = stream;
-        }
-        if (track.kind === "audio" && !audioRef.current.srcObject) {
-          audioRef.current.srcObject = stream;
-        }
-      });
+      setStreamsMap(prev => ({ ...prev, [name]: stream }));
     };
-
     peers.current[name] = pc;
-    if (screenStream.current || webcamStream.current || micStream.current) {
-      await addAllTracks(pc);
-    } else {
-      console.warn("⚠️ Нет доступных потоков для добавления в PeerConnection");
-    }
-
+    await addLocalTracks(pc);
+    [micStream.current, webcamStream.current, screenStream.current].forEach(stream => {
+      if (stream) stream.getTracks().forEach(track => pc.addTrack(track, stream));
+    });
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     sendSignal("offer", name, pc.localDescription);
   }
 
-  async function addAllTracks(pc) {
-    [screenStream.current, webcamStream.current, micStream.current].forEach((stream) => {
-      if (stream) {
-        stream.getTracks().forEach((track) => {
-          try {
-            pc.addTrack(track, stream);
-          } catch (e) {
-            console.error("❌ addTrack failed:", e);
-          }
-        });
-      }
-    });
-  }
-
-  function sendSignal(signalType, to, data) {
-    if (ws.current?.readyState === WebSocket.OPEN) {
-      ws.current.send(
-        JSON.stringify({
-          signal_type: signalType,
-          signal_data: data,
-          to,
-        })
-      );
-    }
-  }
-
-  // 🔷 Media Control Functions
-  function stopAllStreams() {
-    [screenStream.current, webcamStream.current, micStream.current].forEach((stream) => {
-      if (stream) stream.getTracks().forEach((track) => track.stop());
-    });
-  }
-
-  // 🔷 Toggle Functions for Controls
-  const toggleMic = () => {
-    if (micStream.current) {
-      micStream.current.getTracks().forEach((track) => track.stop());
-      micStream.current = null;
-    } else {
-      navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then((stream) => {
-          micStream.current = stream;
-          audioRef.current.srcObject = stream;
-        })
-        .catch((err) => console.error("❌ Error accessing microphone:", err));
-    }
-    setIsMicOn(!isMicOn);
-  };
-
-  const toggleWebcam = () => {
-    if (webcamStream.current) {
-      webcamStream.current.getTracks().forEach((track) => track.stop());
-      webcamStream.current = null;
-    } else {
-      navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then((stream) => {
-          webcamStream.current = stream;
-          videoRef.current.srcObject = stream;
-        })
-        .catch((err) => console.error("❌ Error accessing webcam:", err));
-    }
-    setIsWebcamOn(!isWebcamOn);
-  };
-
-  const toggleScreenSharing = () => {
-    if (screenStream.current) {
-      screenStream.current.getTracks().forEach((track) => track.stop());
-      screenStream.current = null;
-    } else {
-      navigator.mediaDevices
-        .getDisplayMedia({ video: true })
-        .then((stream) => {
-          screenStream.current = stream;
-          videoRef.current.srcObject = stream;
-        })
-        .catch((err) => console.error("❌ Error accessing screen:", err));
-    }
-    setIsScreenSharing(!isScreenSharing);
-  };
-
-  // 🔷 Handle User Click
-  const handleUserClick = (username) => {
-    const streams = peers.current[username]?.streams || [];
-
-    if (streams) {
-      const screenStream = streams.find((s) => s.getVideoTracks().some((t) => t.label.includes("Screen")));
-      const webcamStream = streams.find((s) => s.getVideoTracks().some((t) => !t.label.includes("Screen")));
-
-      setActiveUser({
-        username,
-        screenStream,
-        webcamStream,
+  // ─── Обновление треков после toggle ────────────────────────────
+  async function updateTracks() {
+    for (const [name, pc] of Object.entries(peers.current)) {
+      const senders = pc.getSenders();
+      [micStream.current, webcamStream.current, screenStream.current].forEach(stream => {
+        if (stream) {
+          stream.getTracks().forEach(async track => {
+            const sender = senders.find(s => s.track?.kind === track.kind);
+            if (sender) await sender.replaceTrack(track);
+            else pc.addTrack(track, stream);
+          });
+        }
       });
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      sendSignal("offer", name, pc.localDescription);
     }
+  }
+
+  function sendSignal(type, to, data) {
+    ws.current?.readyState === WebSocket.OPEN &&
+      ws.current.send(JSON.stringify({ signal_type: type, signal_data: data, to }));
+  }
+
+  function stopAllStreams() {
+    [micStream.current, webcamStream.current, screenStream.current].forEach(s => {
+      if (s) s.getTracks().forEach(t => t.stop());
+    });
+    setStreamsMap({});
+  }
+
+  // ─── Toggle handlers ────────────────────────────────────────────
+  const toggleMic = async () => {
+    if (micStream.current) {
+      micStream.current.getTracks().forEach(t => t.stop());
+      micStream.current = null;
+      setIsMicOn(false);
+    } else {
+      try {
+        const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+        micStream.current = s;
+        setIsMicOn(true);
+      } catch (e) { console.error(e); }
+    }
+    await updateTracks();
   };
 
-// 🔷 Render
-return (
-  <div className="center-content">
-    {isTranslating ? (
-      <div className="conference-view">
-        <h2 className="conference-title">
-          Трансляция канала "{currentChannel}"
-        </h2>
+  const toggleWebcam = async () => {
+    if (webcamStream.current) {
+      webcamStream.current.getTracks().forEach(t => t.stop());
+      webcamStream.current = null;
+      setIsWebcamOn(false);
+      setStreamsMap(prev => { const next = { ...prev }; delete next[username]; return next; });
+    } else {
+      try {
+        const s = await navigator.mediaDevices.getUserMedia({ video: true });
+        webcamStream.current = s;
+        setIsWebcamOn(true);
+        setStreamsMap(prev => ({ ...prev, [username]: s }));
+      } catch (e) { console.error(e); }
+    }
+    await updateTracks();
+  };
 
-        <audio ref={audioRef} autoPlay playsInline controls={false} />
+  const toggleScreenSharing = async () => {
+    if (screenStream.current) {
+      screenStream.current.getTracks().forEach(t => t.stop());
+      screenStream.current = null;
+      setIsScreenSharing(false);
+      setStreamsMap(prev => { const next = { ...prev }; delete next[username]; return next; });
+    } else {
+      try {
+        const s = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        screenStream.current = s;
+        setIsScreenSharing(true);
+        setStreamsMap(prev => ({ ...prev, [username]: s }));
+      } catch (e) { console.error(e); }
+    }
+    await updateTracks();
+  };
 
-        <div className="user-tiles-wrapper">
-          <UserTiles
-            participants={participants}
-            activeUser={activeUser}
-            onUserClick={handleUserClick}
-            streams={participants.reduce((acc, participant) => {
-              const peer = peers.current[participant.username];
-              if (peer && peer.streams.length > 0) {
-                acc[participant.username] = peer.streams[0];
-              }
-              return acc;
-            }, {})}
+  // ─── Клик по пользователю ────────────────────────────────────────
+  const handleUserClick = user => {
+    if (activeUser?.username === user) setActiveUser(null);
+    else setActiveUser({ username: user, stream: streamsMap[user] || null });
+  };
+
+  // класс, зависящий от видимости левой панели
+  const containerClass = panelVisible
+    ? "center-content with-panel"
+    : "center-content full-width";
+
+  return (
+    <div className={`${containerClass} ${isTranslating ? "translating" : ""}`}>
+      {isTranslating ? (
+        <div className="conference-view">
+          <h2 className="conference-title">
+            Трансляция канала "{currentChannel}"
+          </h2>
+          <div className="user-tiles-container">
+            <UserTiles
+              participants={participants}
+              activeUser={activeUser?.username}
+              onUserClick={handleUserClick}
+              streams={streamsMap}
+              username={username}
+              isWebcamOn={isWebcamOn}
+              webcamStream={webcamStream.current}
+            />
+          </div>
+          <div className="user-stream-wrapper">
+            {activeUser ? (
+              <UserStreamView
+                user={activeUser.username}
+                screenStream={activeUser.stream}
+                onClose={() => setActiveUser(null)}
+              />
+            ) : (
+              <div className="no-video-placeholder">
+                Выберите пользователя, чтобы увидеть подробнее...
+              </div>
+            )}
+          </div>
+          <div className="controls">
+            <button onClick={toggleScreenSharing}>
+              {isScreenSharing ? "Остановить трансляцию" : "Поделиться экраном"}
+            </button>
+            <button onClick={toggleMic}>
+              {isMicOn ? "Выключить микрофон" : "Включить микрофон"}
+            </button>
+            <button onClick={toggleWebcam}>
+              {isWebcamOn ? "Выключить вебку" : "Включить вебку"}
+            </button>
+            <button className="back-button" onClick={onCloseTranslating}>
+              На главную
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="logo-wrapper">
+          <img
+            src="/logotip.svg"
+            alt="Logo"
+            className="logo-animated"
+            draggable="false"
           />
         </div>
-
-        {activeUser && (
-          <UserStreamView
-            user={activeUser.username}
-            screenStream={activeUser.screenStream}
-            webcamStream={activeUser.webcamStream}
-            onClose={() => setActiveUser(null)}
-          />
-        )}
-
-        <div className="controls">
-        <button
-  className={`screen-button ${isMicOn ? "mic-on" : "mic-off"}`}
-  onClick={toggleMic}
->
-  {isMicOn ? "Выключить микрофон" : "Включить микрофон"}
-</button>
-<button
-  className={`webcam-button ${isWebcamOn ? "webcam-on" : "webcam-off"}`}
-  onClick={toggleWebcam}
->
-  {isWebcamOn ? "Выключить вебку" : "Включить вебку"}
-</button>
-<button
-  className={`screen-button ${isScreenSharing ? "screen-on" : "screen-off"}`}
-  onClick={toggleScreenSharing}
->
-  {isScreenSharing ? "Остановить трансляцию" : "Поделиться экраном"}
-</button>
-<button className="back-button go-home" onClick={onCloseTranslating}>
-  На главную
-</button>
-        </div>
-      </div>
-    ) : (
-      <div className="logo-wrapper">
-        <img
-          src="/logotip.svg"
-          alt="ISITvoice Logo"
-          className="logo-animated"
-          draggable="false"
-        />
-      </div>
-    )}
-  </div>
-);
+      )}
+    </div>
+  );
 }

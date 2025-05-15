@@ -1,3 +1,4 @@
+// RightPanel.jsx
 import React, { useEffect, useState } from "react";
 import "./RightPanel.css";
 import ParticipantsList from "./ParticipantsList";
@@ -20,9 +21,7 @@ function RightPanel({ currentChannel }) {
         const res = await fetch(
           `http://localhost:8000/communication/channels/${currentChannel}/`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
         const data = await res.json();
@@ -52,12 +51,7 @@ function RightPanel({ currentChannel }) {
     <div className={`right-panel ${currentChannel ? "active" : ""}`}>
       {currentChannel ? (
         <div className="content-container">
-          <div className="participants-section">
-            <h2 className="section-title">
-              Пользователи канала: "{channelName}"
-            </h2>
-            <ParticipantsList participants={participants} />
-          </div>
+          
           <div className="divider" />
           <div className="chat-section">
             <h2 className="section-title">Чат канала "{channelName}"</h2>

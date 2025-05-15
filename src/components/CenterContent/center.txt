@@ -1,0 +1,319 @@
+import React, { useState, useEffect, useRef } from "react";
+import UserTiles from "./UserTiles";
+import "./CenterContent.css";
+
+export default function CenterContent({ isTranslating, onCloseTranslating, currentChannel }) {
+  const ws = useRef(null);
+  const peers = useRef({});
+  const token = localStorage.getItem("access");
+
+  // Локальные медиа потоки
+  const micStream = useRef(null);
+  const webcamStream = useRef(null);
+  const screenStream = useRef(null);
+
+  // Состояния
+  const [participants, setParticipants] = useState([]);
+  const [activeUser, setActiveUser] = useState(null);
+  const [isMicOn, setIsMicOn] = useState(false);
+  const [isWebcamOn, setIsWebcamOn] = useState(false);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
+
+  useEffect(() => {
+    if (!isTranslating || !currentChannel) return;
+
+    ws.current = new WebSocket(
+      `ws://localhost:8000/ws/communication/channels/${currentChannel}/?token=${token}`
+    );
+
+    ws.current.onopen = () => {
+      console.log("✅ WebSocket connected");
+    };
+
+    ws.current.onmessage = async ({ data }) => {
+      const msg = JSON.parse(data);
+      //console.log("📨 WS received:", msg);
+
+      if (msg.type === "participants_update") {
+        setParticipants(msg.participants.map((username) => ({ username })));
+        msg.participants.forEach((username) => {
+          if (!peers.current[username] && username !== currentChannel) {
+            createPeer(username);
+          }
+        });
+      }
+
+      if (msg.type === "signal") {
+        const { from, signal_type, signal_data } = msg;
+        if (from === currentChannel) return;
+
+        const pc = peers.current[from];
+        if (!pc) return console.warn("⚠️ No peer for", from);
+
+        if (signal_type === "offer") {
+          await pc.setRemoteDescription(new RTCSessionDescription(signal_data));
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          sendSignal("answer", from, pc.localDescription);
+        }
+
+        if (signal_type === "answer") {
+          if (pc.signalingState === "have-local-offer") {
+            await pc.setRemoteDescription(new RTCSessionDescription(signal_data));
+          } else {
+            console.warn("⚠️ Unexpected signaling state for answer:", pc.signalingState);
+          }
+        }
+
+        if (signal_type === "ice") {
+          try {
+            await pc.addIceCandidate(new RTCIceCandidate(signal_data));
+          } catch (err) {
+            console.error("❌ ICE add failed:", err);
+          }
+        }
+      }
+    };
+
+    ws.current.onerror = (err) => {
+      console.error("❌ WebSocket error:", err);
+    };
+
+    return () => {
+      Object.values(peers.current).forEach((pc) => pc.close());
+      peers.current = {};
+      ws.current && ws.current.close();
+      stopAllStreams();
+    };
+  }, [isTranslating, currentChannel, token]);
+
+  async function createPeer(name) {
+    const pc = new RTCPeerConnection({
+      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+    });
+
+    pc.onicecandidate = (e) => {
+      if (e.candidate) {
+        sendSignal("ice", name, e.candidate.toJSON());
+      }
+    };
+
+    pc.ontrack = (e) => {
+      // Получаем медиапоток от удалённого пользователя
+      const stream = e.streams[0];
+      if (!stream) return;
+
+      if (!pc.remoteStreams) pc.remoteStreams = [];
+      if (!pc.remoteStreams.includes(stream)) {
+        pc.remoteStreams.push(stream);
+        // Триггерим обновление списка участников с видео
+        setParticipants((prev) => [...prev]);
+      }
+    };
+
+    peers.current[name] = pc;
+
+    await addLocalTracks(pc);
+
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    sendSignal("offer", name, pc.localDescription);
+  }
+
+  async function addLocalTracks(pc) {
+    // Добавляем локальные треки в соединение
+    [micStream.current, webcamStream.current, screenStream.current].forEach((stream) => {
+      if (stream) {
+        stream.getTracks().forEach((track) => {
+          try {
+            pc.addTrack(track, stream);
+          } catch (e) {
+            console.error("❌ addTrack failed:", e);
+          }
+        });
+      }
+    });
+  }
+
+  async function updateTracks() {
+    for (const [peerId, pc] of Object.entries(peers.current)) {
+      const senders = pc.getSenders();
+      [micStream.current, webcamStream.current, screenStream.current].forEach((stream) => {
+        if (stream) {
+          stream.getTracks().forEach(async (track) => {
+            let sender = senders.find((s) => s.track?.kind === track.kind);
+            if (sender) {
+              await sender.replaceTrack(track);
+            } else {
+              pc.addTrack(track, stream);
+            }
+          });
+        }
+      });
+
+      if (pc.signalingState !== "stable") {
+        await waitForStable(pc);
+      }
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      sendSignal("offer", peerId, pc.localDescription);
+    }
+  }
+
+  function waitForStable(pc) {
+    return new Promise((resolve) => {
+      if (pc.signalingState === "stable") return resolve();
+
+      const handler = () => {
+        if (pc.signalingState === "stable") {
+          pc.removeEventListener("signalingstatechange", handler);
+          resolve();
+        }
+      };
+
+      pc.addEventListener("signalingstatechange", handler);
+    });
+  }
+
+  function sendSignal(signalType, to, data) {
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      ws.current.send(
+        JSON.stringify({
+          signal_type: signalType,
+          signal_data: data,
+          to: to,
+        })
+      );
+    }
+  }
+
+  // Управление микрофоном
+  async function toggleMic() {
+    if (isMicOn) {
+      stopStream(micStream.current);
+      micStream.current = null;
+      setIsMicOn(false);
+      await updateTracks();
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        micStream.current = stream;
+        setIsMicOn(true);
+        await updateTracks();
+      } catch (err) {
+        console.error("❌ Microphone capture failed:", err);
+      }
+    }
+  }
+
+  // Управление вебкой
+  async function toggleWebcam() {
+    if (isWebcamOn) {
+      stopStream(webcamStream.current);
+      webcamStream.current = null;
+      setIsWebcamOn(false);
+      await updateTracks();
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        webcamStream.current = stream;
+        setIsWebcamOn(true);
+        await updateTracks();
+      } catch (err) {
+        console.error("❌ Webcam capture failed:", err);
+      }
+    }
+  }
+
+  // Запуск и остановка шаринга экрана
+  async function toggleScreenShare() {
+    if (isScreenSharing) {
+      stopStream(screenStream.current);
+      screenStream.current = null;
+      setIsScreenSharing(false);
+      await updateTracks();
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        screenStream.current = stream;
+        setIsScreenSharing(true);
+        await updateTracks();
+
+        // Если экранное видео закончилось (пользователь остановил)
+        stream.getVideoTracks()[0].onended = () => {
+          stopStream(screenStream.current);
+          screenStream.current = null;
+          setIsScreenSharing(false);
+          updateTracks();
+        };
+      } catch (err) {
+        console.error("❌ Screen sharing failed:", err);
+      }
+    }
+  }
+
+  function stopStream(stream) {
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+    }
+  }
+
+  function stopAllStreams() {
+    stopStream(micStream.current);
+    stopStream(webcamStream.current);
+    stopStream(screenStream.current);
+    micStream.current = null;
+    webcamStream.current = null;
+    screenStream.current = null;
+  }
+
+  // Клик по пользователю для выбора активного
+  function handleUserClick(username) {
+    setActiveUser(username);
+  }
+
+  // Получаем все доступные потоки с peers
+  const streamsMap = {};
+  participants.forEach(({ username }) => {
+    const peer = peers.current[username];
+    if (peer?.remoteStreams?.length) {
+      streamsMap[username] = peer.remoteStreams[0];
+    }
+  });
+
+  return (
+    <div className="center-content">
+      {isTranslating ? (
+        <>
+          <h2>Трансляция канала "{currentChannel}"</h2>
+
+          <UserTiles
+            participants={participants}
+            activeUser={activeUser}
+            onUserClick={handleUserClick}
+            streams={streamsMap}
+          />
+
+          <div className="controls">
+            <button onClick={toggleScreenShare}>
+              {isScreenSharing ? "Остановить демонстрацию экрана" : "Показать экран"}
+            </button>
+            <button onClick={toggleMic}>
+              {isMicOn ? "Выключить микрофон" : "Включить микрофон"}
+            </button>
+            <button onClick={toggleWebcam}>
+              {isWebcamOn ? "Выключить вебку" : "Включить вебку"}
+            </button>
+          </div>
+
+          <button className="close-btn" onClick={onCloseTranslating}>
+            Закрыть трансляцию
+          </button>
+        </>
+      ) : (
+        <div>Не ведется трансляция</div>
+      )}
+    </div>
+  );
+}

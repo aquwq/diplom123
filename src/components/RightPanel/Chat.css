@@ -1,3 +1,5 @@
+/* Chat.css */
+
 .chat-container {
   flex: 1;
   padding: 10px;
@@ -37,8 +39,15 @@
 .message {
   padding: 10px;
   border-radius: 5px;
-  word-wrap: break-word;
+  background-color: #31355a;
   color: white;
+  align-self: flex-start;
+  /* Ограничиваем ширину, чтобы текст не выходил за пределы */
+  max-width: 80%;
+  /* Перенос слов внутри */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  white-space: normal;
 }
 
 .message-self {
@@ -51,6 +60,28 @@
   align-self: flex-start;
 }
 
+.message-content {
+  /* Гарантируем, что параграфы тоже переносят длинные слова */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.message-content p {
+  margin: 5px 0 0;
+}
+
+.message-meta {
+  margin-top: 5px;
+  font-size: 0.75em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.attached-file {
+  margin-top: 5px;
+  font-size: 0.9em;
+}
+
 .chat-input-container {
   display: flex;
   align-items: center;
@@ -60,13 +91,28 @@
   border-radius: 8px;
   flex-wrap: wrap;
   overflow: hidden;
-  max-width: 100%;
   box-sizing: border-box;
 }
 
+.media-button {
+  font-size: 20px;
+  cursor: pointer;
+  background-color: #2e2e4d;
+  color: white;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.media-button:hover {
+  background-color: #3d3d66;
+}
+
 .chat-input {
+  /* Позволяем полю расширяться и сжиматься */
   flex: 1;
-  min-width: 0;
+  min-width: 100px;      /* минимальная ширина */
+  max-width: 70%;       /* не более 70% контейнера */
   padding: 10px;
   border: none;
   border-radius: 4px;
@@ -74,6 +120,9 @@
   color: white;
   outline: none;
   box-sizing: border-box;
+  /* если введён слишком длинный текст, ввод прокручивается внутри */
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .chat-input::placeholder {
@@ -81,7 +130,7 @@
 }
 
 .send-button {
-  padding: 10px 10px;
+  padding: 10px 12px;
   background-color: #4caf50;
   color: white;
   border: none;
@@ -99,6 +148,7 @@
 .send-button:active {
   background-color: #3e8e41;
 }
+
 
 .media-button {
   font-size: 20px;

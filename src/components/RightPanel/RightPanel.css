@@ -1,24 +1,23 @@
+/* RightPanel.css */
 .right-panel {
-  position: fixed;      /* фиксируем относительно окна */
+  position: fixed;
   top: 0;
   right: 0;
-  width: 300px;         /* фиксированная ширина панели */
+  width: 360px;
   height: 100vh;
   background-color: #1e1e2f;
-  
-
   box-sizing: border-box;
   overflow: hidden;
-  z-index: 500;         /* чтобы она была над центральной зоной */
+  z-index: 500;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+  transition: width 0.3s ease;
 }
 
-/* Контейнер внутри остаётся почти без изменений */
 .content-container {
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow-y: auto;
- 
 }
 
 .participants-section,
@@ -60,105 +59,37 @@
   pointer-events: none;
 }
 
-/* Стили скроллбара */
-.participants-section::-webkit-scrollbar,
+.content-container::-webkit-scrollbar,
 .chat-section::-webkit-scrollbar {
   width: 8px;
 }
 
-.participants-section::-webkit-scrollbar-thumb,
+.content-container::-webkit-scrollbar-thumb,
 .chat-section::-webkit-scrollbar-thumb {
   background-color: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
 }
 
-.participants-section::-webkit-scrollbar-thumb:hover,
+.content-container::-webkit-scrollbar-thumb:hover,
 .chat-section::-webkit-scrollbar-thumb:hover {
   background-color: rgba(255, 255, 255, 0.4);
 }
 
-.no-channel-container {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-}
-
-.fancy-message {
-  margin: 0;
-  padding: 20px;
-  text-align: center;
-  color: #d6d6ff;
-  font-size: 1.3rem;
-  font-style: italic;
-  line-height: 1.5;
-  letter-spacing: 0.5px;
-  text-shadow:
-    0 0 5px #6b6eff,
-    0 0 10px #6b6eff,
-    0 0 15px #8e9dff,
-    0 0 20px #b0b6ff;
-  animation:
-    dreamyGlow 4s ease-in-out infinite alternate,
-    floatAndPulse 6s ease-in-out infinite;
-  transition: all 0.3s ease-in-out;
-}
-
-@keyframes dreamyGlow {
-  0% {
-    text-shadow:
-      0 0 5px #6b6eff,
-      0 0 10px #6b6eff,
-      0 0 15px #8e9dff,
-      0 0 20px #b0b6ff;
-    color: #d6d6ff;
-  }
-  50% {
-    text-shadow:
-      0 0 10px #8b8eff,
-      0 0 20px #a5a9ff,
-      0 0 30px #c3c6ff;
-    color: #f0f0ff;
-  }
-  100% {
-    text-shadow:
-      0 0 5px #6b6eff,
-      0 0 10px #6b6eff,
-      0 0 15px #8e9dff,
-      0 0 20px #b0b6ff;
-    color: #d6d6ff;
-  }
-}
-
-@keyframes floatAndPulse {
-  0%, 100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-10px) scale(1.03);
-  }
-}
-
-
-/* контейнер для состояния “нет канала” */
 .no-channel-container {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  padding: 0 20px;
+  padding: 20px;
 }
 
-/* сам блок с иконкой и текстом */
 .no-channel-block {
   text-align: center;
   max-width: 220px;
   animation: fadeIn 0.5s ease-out;
 }
 
-/* иконка сверху */
 .no-channel-icon {
   color: #81d4fa;
   margin-bottom: 12px;
@@ -169,7 +100,6 @@
   transform: scale(1.1);
 }
 
-/* заголовок */
 .no-channel-title {
   margin: 0;
   font-size: 1.5rem;
@@ -179,7 +109,6 @@
   margin-bottom: 8px;
 }
 
-/* поясняющий текст */
 .no-channel-subtitle {
   margin: 0;
   font-size: 1rem;
@@ -187,9 +116,7 @@
   line-height: 1.4;
 }
 
-/* простая анимация появления */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-

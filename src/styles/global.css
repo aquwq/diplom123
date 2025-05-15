@@ -22,6 +22,7 @@ body {
   grid-template-columns: auto 300px; /* Центр и правая панель */
 }
 
+
 /* Когда левая панель видна */
 .app-container.sidebar-visible {
   /* левая панель 260px, центр гибкий, правая 300px */

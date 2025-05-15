@@ -1,0 +1,54 @@
+import React from "react";
+
+export default function UserTiles({ participants, activeUser, onUserClick, streams }) {
+  return (
+    <div className="user-tiles" style={{ display: "flex", flexWrap: "wrap" }}>
+      {participants.map(({ username }) => {
+        const stream = streams[username];
+        return (
+          <div
+            key={username}
+            className={`user-tile ${activeUser === username ? "active" : ""}`}
+            onClick={() => onUserClick(username)}
+            style={{
+              margin: "10px",
+              cursor: "pointer",
+              border: activeUser === username ? "3px solid blue" : "1px solid gray",
+              padding: "5px",
+              width: "180px",
+            }}
+          >
+            <div style={{ marginBottom: "5px", fontWeight: "bold" }}>{username}</div>
+            {stream ? (
+              <video
+                autoPlay
+                muted={username !== activeUser}
+                playsInline
+                ref={(video) => {
+                  if (video && video.srcObject !== stream) {
+                    video.srcObject = stream;
+                  }
+                }}
+                style={{ width: "170px", height: "130px", backgroundColor: "black" }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: "170px",
+                  height: "130px",
+                  backgroundColor: "#222",
+                  color: "white",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                Нет видео
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}

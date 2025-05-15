@@ -1,0 +1,41 @@
+import React, { useEffect, useRef } from "react";
+import "./UserStreamView.css";
+
+export default function UserStreamView({ user, screenStream, webcamStream, onClose }) {
+  const screenVideoRef = useRef(null);
+  const webcamVideoRef = useRef(null);
+
+  useEffect(() => {
+    if (screenVideoRef.current) {
+      screenVideoRef.current.srcObject = screenStream || null;
+    }
+    if (webcamVideoRef.current) {
+      webcamVideoRef.current.srcObject = webcamStream || null;
+    }
+  }, [screenStream, webcamStream]);
+
+  return (
+    <div className="user-stream-view">
+      <button className="close-button" onClick={onClose}>Закрыть</button>
+      <h3>Трансляция пользователя: {user}</h3>
+
+      {screenStream ? (
+        <div className="screen-share">
+          <h4>Экран</h4>
+          <video ref={screenVideoRef} autoPlay playsInline controls={false} />
+        </div>
+      ) : (
+        <p>Экран не транслируется</p>
+      )}
+
+      {webcamStream ? (
+        <div className="webcam-share">
+          <h4>Вебкамера</h4>
+          <video ref={webcamVideoRef} autoPlay playsInline muted />
+        </div>
+      ) : (
+        <p>Вебкамера не включена</p>
+      )}
+    </div>
+  );
+}

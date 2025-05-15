@@ -10,34 +10,33 @@ function MainPage({
   onCloseTranslating,
   isAppMenuOpen
 }) {
-  // --- Новый стейт для боковой панели ---
   const [panelVisible, setPanelVisible] = useState(true);
   const togglePanelVisibility = () => setPanelVisible(v => !v);
+  const [rightPanelWidth, setRightPanelWidth] = useState(300);
 
   return (
     <div className={`app-container ${isAppMenuOpen ? "blurred" : ""}`}>
-      {/* Передаём флаг и функцию-валидатор в LeftPanel */}
       <LeftPanel
         onChannelClick={onChannelClick}
         panelVisible={panelVisible}
         togglePanelVisibility={togglePanelVisibility}
       />
 
-      {/* Класс для центрального блока в зависимости от panelVisible */}
-      <div className={`center-content ${
-          panelVisible ? "center-collapsed" : "center-expanded"
-        }`}>
+      <div className="content-wrapper">
         <CenterContent
           isTranslating={isTranslating}
           onCloseTranslating={onCloseTranslating}
           currentChannel={currentChannel}
+          panelVisible={panelVisible}
+          rightPanelWidth={rightPanelWidth}
+        />
+        <RightPanel
+          currentChannel={currentChannel}
+          isTranslating={isTranslating}
+          width={rightPanelWidth}
+          onResize={setRightPanelWidth}
         />
       </div>
-
-      <RightPanel
-        currentChannel={currentChannel}
-        isTranslating={isTranslating}
-      />
     </div>
   );
 }
