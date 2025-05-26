@@ -1,44 +1,87 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./CreateNotification.css";
 import { useNotifications } from "./NotificationContext";
 
-const iconOptions = [
-  {
-    label: "Пара",
-    value: "https://cdn-icons-png.flaticon.com/512/3588/3588294.png",
-  },
-  {
-    label: "Сообщение",
-    value: "https://cdn-icons-png.flaticon.com/512/2950/2950661.png",
-  },
-  {
-    label: "Обновление",
-    value: "https://cdn-icons-png.flaticon.com/512/1827/1827371.png",
-  },
-];
 
 function CreateNotification({ onBack }) {
   const { addNotification } = useNotifications();
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [image, setImage] = useState("");
+  const [groupId, setGroupId] = useState("");
+  const [groups, setGroups] = useState([]);
+  const [iconOptions, setIconOptions] = useState([]);
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+  const fetchData = async () => {
+    const token = localStorage.getItem("access");
+
+    try {
+      // Получаем группы
+      const groupRes = await fetch("http://localhost:8000/api/groups/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (groupRes.ok) {
+        const groupData = await groupRes.json();
+        setGroups(groupData);
+      }
+
+      // Получаем иконки из MinIO
+      const iconRes = await fetch("http://localhost:8000/communication/gicons/");
+      if (iconRes.ok) {
+        const iconData = await iconRes.json();
+        const formattedIcons = iconData.map((url) => {
+        const decodedUrl = decodeURIComponent(url);
+        const parts = decodedUrl.split("/");
+        const name = parts[parts.length - 1].split(".")[0];
+        return {
+          label: name,
+          value: decodedUrl,
+        };
+      });
+        setIconOptions(formattedIcons);
+      }
+    } catch (err) {
+      console.error("Ошибка при загрузке данных:", err);
+    }
+  };
+
+  fetchData();
+}, []);
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    addNotification({
-      title,
-      message,
-      image,
+    const token = localStorage.getItem("access");
+
+    const res = await fetch("http://localhost:8000/communication/create/", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title,
+        message,
+        image,
+        group: groupId || null,
+      }),
     });
-    alert("Уведомление отправлено");
-    onBack();
+
+    if (res.ok) {
+      alert("Уведомление отправлено");
+      onBack();
+    } else {
+      const error = await res.json();
+      alert("Ошибка: " + JSON.stringify(error));
+    }
   };
 
   return (
     <div className="create-notification-container">
-      <div className="close-button" onClick={onBack}>
-        ×
-      </div>
+      <div className="close-button" onClick={onBack}>×</div>
       <h2>Создать уведомление</h2>
       <form onSubmit={handleSubmit}>
         <input
@@ -64,11 +107,21 @@ function CreateNotification({ onBack }) {
         </select>
 
         {image && (
-          <div className="icon-preview">
-            <img src={image} alt="preview" />
-            <p>Превью иконки</p>
-          </div>
+        <div className="icon-preview-image" style={{ maxWidth: "200px", marginTop: "8px", borderRadius: "6px" }}>
+          <img src={image} alt="preview" style={{ width: "100%", borderRadius: "6px" }} />
+          <p>Превью иконки</p>
+        </div>
         )}
+
+
+        <select value={groupId} onChange={(e) => setGroupId(e.target.value)}>
+          <option value="">Все студенты</option>
+          {groups.map((group) => (
+            <option key={group.id} value={group.id}>
+              {group.name} ({group.student_count})
+            </option>
+          ))}
+        </select>
 
         <div className="button-container">
           <button type="submit" className="submit-button">

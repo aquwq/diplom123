@@ -5,37 +5,28 @@ export default function UserTiles({
   participants,
   activeUser,
   onUserClick,
-  streams,      // streamsMap из CenterContent
-  username,     // ваше имя
+  streams,
+  username,
 }) {
   return (
     <div className="user-tiles">
       {participants.map((participant) => {
-        const stream = streams[participant];
+        const streamObj = streams[participant];
         const isLocal = participant === username;
-        const hasStream = Boolean(stream);
-
-        // Для отладки
-        console.log("[UserTiles] participant=", participant,
-                    "isLocal=", isLocal,
-                    "hasStream=", hasStream,
-                    "streamsMap keys=", Object.keys(streams));
+        const webcamStream = streamObj?.webcam || null;
+        const hasStream = Boolean(webcamStream);
 
         return (
           <div
             key={participant}
-            className={`user-tile ${
-              activeUser === participant ? "active" : ""
-            } ${hasStream ? "transmitting" : ""}`}
+            className={`user-tile ${activeUser === participant ? "active" : ""} ${hasStream ? "transmitting" : ""}`}
             onClick={() => onUserClick(participant)}
           >
             {hasStream ? (
               isLocal ? (
-                // Локальный пользователь — только метка
                 <div className="streaming-label">ИДЕТ СТРИМ</div>
               ) : (
-                // Другие — видео
-                <VideoTile stream={stream} muted={false} />
+                <VideoTile stream={webcamStream} muted={false} />
               )
             ) : (
               <div className="no-video">Нет видео</div>
@@ -48,16 +39,20 @@ export default function UserTiles({
   );
 }
 
+
 function VideoTile({ stream, muted }) {
   const ref = useRef();
-  
+
   useEffect(() => {
-    if (ref.current) {
-      if (stream) {
-        ref.current.srcObject = stream;
-      } else {
-        ref.current.srcObject = null;
-      }
+    const videoElement = ref.current;
+
+    if (!videoElement) return;
+
+    if (stream instanceof MediaStream) {
+      videoElement.srcObject = stream;
+    } else {
+      console.warn("Невалидный stream в VideoTile:", stream);
+      videoElement.srcObject = null;
     }
   }, [stream]);
 

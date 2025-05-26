@@ -6,13 +6,13 @@ function Login({ onLogin }) {
   const [isRegistering, setIsRegistering] = useState(false);
   const [registered, setRegistered] = useState(false);
 
-  const [username, setUsername] = useState(""); // Номер зачётки
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [fullName, setFullName] = useState("");     // ФИО
-  const [groupId, setGroupId] = useState("");       // ID группы
-  const [groups, setGroups] = useState([]);         // Список групп
+  const [fullName, setFullName] = useState("");
+  const [groupId, setGroupId] = useState("");
+  const [groups, setGroups] = useState([]);
 
   useEffect(() => {
     if (isRegistering) {
@@ -38,7 +38,31 @@ function Login({ onLogin }) {
       if (response.ok) {
         localStorage.setItem("access", data.access);
         localStorage.setItem("refresh", data.refresh);
-        onLogin(); // Успешный вход
+
+        // Получаем данные пользователя после получения токена
+        const userResponse = await fetch("http://localhost:8000/accounts/api/user/", {
+          headers: {
+            Authorization: `Bearer ${data.access}`,
+          },
+        });
+
+        if (!userResponse.ok) {
+          throw new Error("Не удалось получить данные пользователя");
+        }
+
+        const userData = await userResponse.json();
+        console.log("Данные пользователя:", userData);
+
+        if (userData?.role) {
+          localStorage.setItem("role", userData.role);
+          localStorage.setItem("name", userData.name);
+          localStorage.setItem("student_number", userData.student_number || "");
+          localStorage.setItem("group", userData.group || "");
+
+        }
+
+        onLogin(); // Только теперь переходим дальше
+
       } else {
         alert("Неверный логин или пароль");
       }
@@ -173,7 +197,11 @@ function Login({ onLogin }) {
           onClick={() => {
             setIsRegistering((prev) => !prev);
             setRegistered(false);
-            setUsername(""); setPassword(""); setConfirmPassword(""); setFullName(""); setGroupId("");
+            setUsername("");
+            setPassword("");
+            setConfirmPassword("");
+            setFullName("");
+            setGroupId("");
           }}
         >
           {isRegistering ? "Назад ко входу" : "Нет аккаунта? Регистрация"}
