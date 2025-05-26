@@ -1,127 +1,151 @@
-/* UserStreamView.css */
-
 .user-stream-view {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  background: #1e1e1e;
+  gap: 20px;
+  background: linear-gradient(135deg, #1e1e2f, #2c2c3e);
   color: #fff;
   padding: 24px;
-  border-radius: 12px;
+  
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+  animation: fadeIn 0.5s ease-out;
+  max-width: 100%;
+  max-height: 100vh;
+  overflow: hidden;
   box-sizing: border-box;
-  max-height: 90vh;     /* чуть больше 90% высоты окна */
-  overflow-y: auto;
 }
 
-/* кнопка закрытия */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.user-stream-view h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  text-align: center;
+}
+
 .user-stream-view .close-button {
   align-self: flex-end;
-  padding: 10px 16px;
-  background: #8a2be2;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #ff4d4d, #c0392b);
   border: none;
   border-radius: 6px;
   color: #fff;
   cursor: pointer;
-}
-.user-stream-view .close-button:hover {
-  background: #9f3fff;
+  font-weight: bold;
+  transition: all 0.3s ease;
 }
 
-/* контейнер для потока */
+.user-stream-view .close-button:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #ff6666, #e74c3c);
+}
+
+/* Контейнер с видеопотоками */
 .streams-container {
   display: flex;
-  flex-direction: column; /* расположить потоки вертикально */
-  gap: 16px; /* отступ между блоками */
-  max-height: 80vh; /* ограничение высоты всей области со стримами */
-  overflow-y: auto; /* скролл, если потоков много (на всякий случай) */
+  gap: 16px;
   width: 100%;
-  box-sizing: border-box;
+  max-height: 50vh;
+  overflow: hidden;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
+/* Блок одного потока */
 .stream-container {
-  background: #2a2a2a;
-  border-radius: 8px;
-  padding: 12px 16px;
-  max-width: 100%;
-  max-height: 40vh; /* максимум 40% высоты экрана для каждого потока */
+  flex: 1;
+  background: #2d2d2d;
+  border-radius: 12px;
+  padding: 12px;
   box-sizing: border-box;
-
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  min-width: 280px;
+  transition: transform 0.3s ease;
+}
+
+.stream-container:hover {
+  transform: translateY(-4px);
+}
+
+.stream-container h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #ddd;
+  text-align: center;
 }
 
 .stream-container video {
   width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 4px;
+  height: auto;
+  max-height: 30vh;
+  border-radius: 10px;
   background: #000;
   cursor: pointer;
+  transition: box-shadow 0.3s;
 }
 
-
-/* подсказка полноэкрана */
-.fs-hint {
-  position: fixed;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,0.7);
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: 4px;
-  pointer-events: none;
-  font-size: 0.9em;
-  z-index: 999;
+.stream-container video:hover {
+  box-shadow: 0 0 12px rgba(138, 43, 226, 0.4);
 }
 
-/* Ползунок громкости и кнопка управления */
+/* Громкость и mute */
 .controls-wrapper {
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 12px;
-  margin-top: 12px;
+  margin-top: 16px;
 }
 
 #volume-slider {
   -webkit-appearance: none;
   appearance: none;
-  width: 150px;
-  height: 5px;
+  width: 180px;
+  height: 6px;
   background: #8a2be2;
-  border-radius: 5px;
+  border-radius: 4px;
   outline: none;
-  cursor: pointer;
+  transition: background 0.3s;
 }
 
 #volume-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  background: #9f3fff;
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
   border-radius: 50%;
   cursor: pointer;
+  border: 2px solid #8a2be2;
 }
 
 #volume-slider::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  background: #9f3fff;
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
   border-radius: 50%;
   cursor: pointer;
+  border: 2px solid #8a2be2;
 }
 
-/* Кнопка Замутить/Размутить */
 .mute-button {
-  padding: 8px 12px;
+  padding: 8px 14px;
   background-color: #d32f2f;
   border: none;
   color: #fff;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease;
 }
 
 .mute-button:hover {
@@ -129,5 +153,21 @@
 }
 
 .muted {
-  background-color: #424242;
+  background-color: #555;
+}
+
+/* Подсказка для полноэкранного режима */
+.fs-hint {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.9em;
+  z-index: 999;
+  animation: fadeIn 0.4s ease;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
 }

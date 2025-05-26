@@ -2,11 +2,10 @@ import React, { useState, useEffect } from "react";
 import "./UserInfo.css";
 import Notifications from "./Notifications";
 
-const UserInfo = () => {
+const UserInfo = ({ onClick }) => {
   const [isTooltipVisible, setTooltipVisible] = useState(false);
   const [user, setUser] = useState(null);
 
-  // Чтение данных из localStorage один раз при монтировании
   useEffect(() => {
     const storedUser = {
       name: localStorage.getItem("name"),
@@ -36,23 +35,13 @@ const UserInfo = () => {
         className="user-details"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onClick={onClick} // 🔴 КЛИК для открытия модального окна
       >
         <div className="user-name">{lastName} {initials}</div>
 
         {isTooltipVisible && (
-          <div className="user-tooltip">
-            <div className="user-tooltip-text">
-              <p><strong>ФИО:</strong> {user.name}</p>
-
-              {user.role === "студент" && (
-                <>
-                  <p><strong>Номер зачётной книжки:</strong> {user.student_number || "Не указано"}</p>
-                  <p><strong>Группа:</strong> {user.group || "Не указана"}</p>
-                </>
-              )}
-
-              <p><strong>Роль:</strong> {user.role}</p>
-            </div>
+          <div className="user-tooltip user-hover-hint">
+            Нажмите
           </div>
         )}
       </div>

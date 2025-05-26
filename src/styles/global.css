@@ -20,19 +20,30 @@ body {
   animation: gradientBG 10s ease-in-out infinite;
   transition: filter 0.7s ease;
   grid-template-columns: auto 300px; /* Центр и правая панель */
+  
+  overflow: hidden;
 }
 
 
-/* Когда левая панель видна */
-.app-container.sidebar-visible {
-  /* левая панель 260px, центр гибкий, правая 300px */
+
+/* когда обе панели видны */
+.app-container.sidebar-visible.right-visible {
   grid-template-columns: 260px auto 300px;
 }
 
-/* Когда левая панель скрыта */
-.app-container.sidebar-hidden {
-  /* левая панель 0, центр занимает всё, правая остаётся 300px */
+/* когда левая скрыта, правая видна */
+.app-container.sidebar-hidden.right-visible {
   grid-template-columns: 0 auto 300px;
+}
+
+/* когда левая видна, правая скрыта */
+.app-container.sidebar-visible.right-hidden {
+  grid-template-columns: 260px auto 0;
+}
+
+/* когда обе скрыты */
+.app-container.sidebar-hidden.right-hidden {
+  grid-template-columns: 0 auto 0;
 }
 
 /* Эффект размытия для интерфейса */

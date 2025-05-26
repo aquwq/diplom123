@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import "./CreateNotification.css";
 import { useNotifications } from "./NotificationContext";
 
-
 function CreateNotification({ onBack }) {
   const { addNotification } = useNotifications();
   const [title, setTitle] = useState("");
@@ -13,44 +12,37 @@ function CreateNotification({ onBack }) {
   const [iconOptions, setIconOptions] = useState([]);
 
   useEffect(() => {
-  const fetchData = async () => {
-    const token = localStorage.getItem("access");
+    const fetchData = async () => {
+      const token = localStorage.getItem("access");
+      try {
+        const groupRes = await fetch("http://localhost:8000/api/groups/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (groupRes.ok) {
+          const groupData = await groupRes.json();
+          setGroups(groupData);
+        }
 
-    try {
-      // Получаем группы
-      const groupRes = await fetch("http://localhost:8000/api/groups/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (groupRes.ok) {
-        const groupData = await groupRes.json();
-        setGroups(groupData);
+        const iconRes = await fetch("http://localhost:8000/communication/gicons/");
+        if (iconRes.ok) {
+          const iconData = await iconRes.json();
+          const formattedIcons = iconData.map((url) => {
+            const decodedUrl = decodeURIComponent(url);
+            const parts = decodedUrl.split("/");
+            const name = parts[parts.length - 1].split(".")[0];
+            return { label: name, value: decodedUrl };
+          });
+          setIconOptions(formattedIcons);
+        }
+      } catch (err) {
+        console.error("Ошибка при загрузке данных:", err);
       }
+    };
 
-      // Получаем иконки из MinIO
-      const iconRes = await fetch("http://localhost:8000/communication/gicons/");
-      if (iconRes.ok) {
-        const iconData = await iconRes.json();
-        const formattedIcons = iconData.map((url) => {
-        const decodedUrl = decodeURIComponent(url);
-        const parts = decodedUrl.split("/");
-        const name = parts[parts.length - 1].split(".")[0];
-        return {
-          label: name,
-          value: decodedUrl,
-        };
-      });
-        setIconOptions(formattedIcons);
-      }
-    } catch (err) {
-      console.error("Ошибка при загрузке данных:", err);
-    }
-  };
-
-  fetchData();
-}, []);
-
+    fetchData();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -107,12 +99,11 @@ function CreateNotification({ onBack }) {
         </select>
 
         {image && (
-        <div className="icon-preview-image" style={{ maxWidth: "200px", marginTop: "8px", borderRadius: "6px" }}>
-          <img src={image} alt="preview" style={{ width: "100%", borderRadius: "6px" }} />
-          <p>Превью иконки</p>
-        </div>
+          <div className="icon-preview-image">
+            <img src={image} alt="preview" />
+            <p>Превью иконки</p>
+          </div>
         )}
-
 
         <select value={groupId} onChange={(e) => setGroupId(e.target.value)}>
           <option value="">Все студенты</option>
@@ -124,9 +115,7 @@ function CreateNotification({ onBack }) {
         </select>
 
         <div className="button-container">
-          <button type="submit" className="submit-button">
-            Отправить
-          </button>
+          <button type="submit" className="submit-button">Отправить</button>
         </div>
       </form>
     </div>

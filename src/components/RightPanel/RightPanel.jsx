@@ -1,14 +1,21 @@
 // RightPanel.jsx
 import React, { useEffect, useState } from "react";
 import "./RightPanel.css";
-import ParticipantsList from "./ParticipantsList";
 import Chat from "./Chat";
 import { FiMessageCircle } from "react-icons/fi";
 
-function RightPanel({ currentChannel }) {
+function RightPanel({ currentChannel, width }) {
   const [participants, setParticipants] = useState([]);
   const [channelName, setChannelName] = useState("");
   const [messages, setMessages] = useState([]);
+const [messagesByChannel, setMessagesByChannel] = useState({});
+
+const updateChannelMessages = (channelId, messages) => {
+  setMessagesByChannel((prev) => ({
+    ...prev,
+    [channelId]: messages,
+  }));
+};
 
   useEffect(() => {
     if (!currentChannel) return;
@@ -48,13 +55,12 @@ function RightPanel({ currentChannel }) {
   }, [currentChannel]);
 
   return (
-    <div className={`right-panel ${currentChannel ? "active" : ""}`}>
+    <div className="right-panel" style={{ width: `${width}px` }}>
       {currentChannel ? (
         <div className="content-container">
-          
           <div className="divider" />
           <div className="chat-section">
-            <h2 className="section-title">Чат канала "{channelName}"</h2>
+            <h2 className="section-title">Чат канала "{currentChannel}"</h2>
             <Chat
               messages={messages}
               setMessages={setMessages}

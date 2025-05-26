@@ -10,16 +10,22 @@ function MainPage({
   onCloseTranslating,
   isAppMenuOpen
 }) {
-  const [panelVisible, setPanelVisible] = useState(true);
-  const togglePanelVisibility = () => setPanelVisible(v => !v);
+  const [panelsVisible, setPanelsVisible] = useState(true);
   const [rightPanelWidth, setRightPanelWidth] = useState(300);
 
+  const togglePanelsVisibility = () => setPanelsVisible(v => !v);
+
   return (
-    <div className={`app-container ${isAppMenuOpen ? "blurred" : ""}`}>
+    <div
+      className={`app-container 
+        ${isAppMenuOpen ? "blurred" : ""} 
+        ${panelsVisible ? "sidebar-visible" : "sidebar-hidden"}
+      `}
+    >
       <LeftPanel
         onChannelClick={onChannelClick}
-        panelVisible={panelVisible}
-        togglePanelVisibility={togglePanelVisibility}
+        panelVisible={panelsVisible}
+        togglePanelVisibility={togglePanelsVisibility}
       />
 
       <div className="content-wrapper">
@@ -27,11 +33,12 @@ function MainPage({
           isTranslating={isTranslating}
           onCloseTranslating={onCloseTranslating}
           currentChannel={currentChannel}
-          panelVisible={panelVisible}
+          panelVisible={panelsVisible}
           rightPanelWidth={rightPanelWidth}
         />
         <RightPanel
           currentChannel={currentChannel}
+          panelVisible={panelsVisible}
           isTranslating={isTranslating}
           width={rightPanelWidth}
           onResize={setRightPanelWidth}

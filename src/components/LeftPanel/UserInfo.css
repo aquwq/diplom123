@@ -9,6 +9,11 @@
     cursor: pointer;
     transition: background-color 0.3s;
   }
+  .user-info:hover {
+    background-color: rgba(60, 60, 90, 0.95);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transform: scale(1.01);
+}
   
   .user-avatar {
     width: 40px;
@@ -57,4 +62,5 @@
     margin: 5px 0;
     font-size: 12px;
   }
+  
   

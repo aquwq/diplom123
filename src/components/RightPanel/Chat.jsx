@@ -43,7 +43,7 @@ function Chat({ currentChannel, messages, setMessages }) {
     if (!channelId) return;
     const token = localStorage.getItem("access");
     try {
-      const res = await fetch(`http://localhost:8000/communication/channels/${channelId}/`, {
+      const res = await fetch(`http://localhost:8000/communication/channels/${channelId}/get/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -244,7 +244,7 @@ function Chat({ currentChannel, messages, setMessages }) {
                     <img
                       src={msg.uploaded_file.url}
                       alt="preview"
-                      style={{ maxWidth: "200px", marginTop: "8px", borderRadius: "6px" }}
+                      style={{ maxWidth: "100%", marginTop: "8px", borderRadius: "6px" }}
                     />
                   </div>
                 )}

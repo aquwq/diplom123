@@ -1,47 +1,49 @@
 .channel-item {
-  padding: 10px 15px;
-  margin: 5px 0;
-  background-color: rgba(60, 60, 90, 0.8);
-  border-radius: 5px;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1rem;
-  cursor: pointer;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  transition: background-color 0.3s ease;
+  gap: 12px;
+  padding: 12px 18px;
+  margin: 6px 0;
+  background-color: rgba(40, 40, 60, 0.85);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 0 4px rgba(79, 195, 247, 0.6);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .channel-item:hover {
-  background-color: rgba(80, 80, 120, 0.9);
+  background-color: rgba(60, 60, 90, 0.95);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transform: scale(1.01);
 }
 
 .channel-item.active {
-  background-color: rgba(80, 120, 255, 0.8); /* Изменим фон для активного канала */
+  background: linear-gradient(90deg, #4f8ef7 0%, #335dff 100%);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(80, 120, 255, 0.6);
+  transform: scale(1.02);
 }
 
-.connect-button {
-  background-color: green;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 5px 10px;
-  cursor: pointer;
+.channel-item::before {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
 }
 
-.connect-button:hover {
-  background-color: darkgreen;
+.channel-item:hover::before {
+  opacity: 1;
 }
 
-.disconnect-button {
-  background-color: crimson;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 5px 10px;
-  cursor: pointer;
-}
-
-.disconnect-button:hover {
-  background-color: darkred;
+/* Текст */
+.channel-item span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

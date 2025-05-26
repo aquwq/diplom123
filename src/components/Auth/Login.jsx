@@ -98,6 +98,7 @@ function Login({ onLogin }) {
       if (response.ok) {
         setRegistered(true);
         setFullName("");
+        /*setEmail(""); Строчка для почты*/
         setGroupId("");
         setUsername("");
         setPassword("");
@@ -120,7 +121,14 @@ function Login({ onLogin }) {
           <p style={{ color: "white", textAlign: "center" }}>
             Ожидайте подтверждения от администратора.
           </p>
-          <button onClick={() => setIsRegistering(false)}>Назад ко входу</button>
+          <button
+          onClick={() => {
+            setIsRegistering(false);
+            setRegistered(false); // <-- добавь это!
+          }}
+        >
+          Назад ко входу
+        </button>
         </div>
       </div>
     );
@@ -149,6 +157,14 @@ function Login({ onLogin }) {
               placeholder="ФИО"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
+              required
+              className="fade"
+            />
+            <input
+              type="text"
+              placeholder="Почта"
+              /* value={Email}
+              onChange={(e) => setEmail(e.target.value)} ЭТА ХУЙНЯ ТОЖЕ ДЛЯ ПОЧТЫ ЗДЕСЬ ВОТ ОНА ПРЯМ ТУТ */
               required
               className="fade"
             />

@@ -323,8 +323,9 @@ export default function CenterContent({
       {isTranslating ? (
         <div className="conference-view">
           <h2 className="conference-title">
-            Трансляция канала "{currentChannel}"
-          </h2>
+  Добро пожаловать в канал:{" "}
+  <span className="channel-name">"{currentChannel}"</span>
+</h2>
           <div className="user-tiles-container">
             <UserTiles
               participants={participants}
@@ -348,8 +349,9 @@ export default function CenterContent({
 
             ) : (
               <div className="no-video-placeholder">
-                Выберите пользователя, чтобы увидеть подробнее...
-              </div>
+  <p className="no-video-text">Нажмите на<br />любого пользователя.</p>
+</div>
+
             )}
           </div>
           <div className="controls">
@@ -362,6 +364,7 @@ export default function CenterContent({
             <button onClick={toggleWebcam}>
               {isWebcamOn ? "Выключить вебку" : "Включить вебку"}
             </button>
+            
             <button className="back-button" onClick={onCloseTranslating}>
               На главную
             </button>
@@ -377,6 +380,7 @@ export default function CenterContent({
           />
         </div>
       )}
+      
     </div>
   );
 }

@@ -2,8 +2,10 @@
   display: flex;
   flex-direction: column;
   padding: 10px;
-  max-height: 100%; /* Задает максимальную высоту */
-  overflow-y: auto; /* Включает прокрутку */
+  height: 100%; /* ✅ фиксированная высота для растягивания */
+  overflow-y: auto;
+  box-sizing: border-box; /* чтобы padding не выходил за рамки */
+  overflow-x: hidden; /* ✅ блокирует горизонтальную прокрутку */
 }
 
 .channel-list::-webkit-scrollbar {

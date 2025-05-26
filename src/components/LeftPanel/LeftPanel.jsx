@@ -4,6 +4,7 @@ import ChannelList from "./ChannelList";
 import AppMenu from "./AppMenu";
 import AdminPanel from "./AdminPanel/AdminPanel";
 import UserInfo from "./UserInfo";
+import UserProfileModal from "./UserProfileModal"; // импорт
 import { FiGrid, FiSettings, FiLogOut } from "react-icons/fi";
 
 function LeftPanel({
@@ -15,6 +16,12 @@ function LeftPanel({
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [channelsVisible, setChannelsVisible] = useState(true);
   const [role, setRole] = useState(localStorage.getItem("role") || "");
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [userData, setUserData] = useState({
+  name: localStorage.getItem("name") || "Неизвестно",
+  role: localStorage.getItem("role") || "не указана",
+  email: localStorage.getItem("email") || "нет почты"
+});
 
   useEffect(() => {
     const r = localStorage.getItem("role");
@@ -69,12 +76,18 @@ function LeftPanel({
         </div>
 
         <div className="userinfo-container">
-          <UserInfo onTooltipToggle={() => {}} />
+          <UserInfo onClick={() => setShowUserModal(true)} />
         </div>
       </aside>
 
       {showAppMenu && <AppMenu onClose={() => setShowAppMenu(false)} />}
       {showAdminPanel && <AdminPanel onClose={() => setShowAdminPanel(false)} />}
+        {showUserModal && (
+  <UserProfileModal
+    user={userData}
+    onClose={() => setShowUserModal(false)}
+  />
+)}
     </>
   );
 }

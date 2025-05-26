@@ -7,6 +7,7 @@
   background: #1e1e1e;
   overflow: hidden;
   transition: margin-left 0.3s ease, width 0.3s ease;
+  width: 100%; /* По умолчанию занимает всю ширину */
 }
 
 /* когда левая панель открыта, контент сдвигается */
@@ -14,6 +15,23 @@
   margin-left: 260px;           /* ширина панели */
   width: calc(100% - 260px);
 }
+
+
+
+
+
+.center-content.with-right-panel {
+  margin-right: 300px; /* ширина правой панели */
+}
+
+.center-content.without-right-panel {
+  margin-right: 0;
+}
+
+
+
+
+
 
 /* когда левая панель скрыта — контент занимает всю ширину */
 .center-content.full-width {
@@ -52,8 +70,46 @@
 .conference-title {
   grid-area: title;
   margin: 0;
-  color: #fff;
+  font-size: 2rem;
+  color: #f0f0f0;
   text-align: center;
+  font-weight: 600;
+  letter-spacing: 1px;
+  animation: fadeInUp 1s ease-out;
+}
+
+/* Эффектный стиль для названия канала */
+.channel-name {
+  color: #00ffff; /* ярко-голубой */
+  font-weight: 700;
+  text-shadow: 0 0 8px #00ffff;
+  font-style: italic;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* Анимация появления заголовка */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Пульсация для имени канала */
+@keyframes pulse {
+  0% {
+    text-shadow: 0 0 8px #00ffff;
+  }
+  50% {
+    text-shadow: 0 0 16px #00ffff, 0 0 24px #00ffff;
+  }
+  100% {
+    text-shadow: 0 0 8px #00ffff;
+  }
 }
 
 /* Левая колонка */
@@ -69,6 +125,7 @@
   flex: 1;
   overflow-y: auto;
 }
+
 
 /* Правая колонка */
 .user-stream-wrapper {
@@ -140,4 +197,52 @@
   0%   { opacity: 0.9; }
   50%  { opacity: 0.4; }
   100% { opacity: 0.9; }
+}
+
+.no-video-placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(135deg, #1e1e2f, #29293f);
+  color: #ffffffcc;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  
+
+  padding: 40px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  animation: pulse 3s infinite ease-in-out;
+}
+
+.no-video-placeholder:hover {
+  border-color: #ffffff99;
+  background: linear-gradient(135deg, #252540, #2d2d50);
+  transform: scale(1.02);
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.1);
+}
+
+.no-video-text {
+  font-size: 1.4rem;
+  line-height: 1.6;
+  font-weight: 500;
+  color: #eeeeee;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+}
+
+/* Анимация "пульсации" */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0.05);
+  }
 }

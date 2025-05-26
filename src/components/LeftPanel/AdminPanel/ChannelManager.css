@@ -89,6 +89,10 @@
 
 .channel-table th,
 .channel-table td {
+    max-width: 150px; /* или другое ограничение по ширине */
+  white-space: nowrap; /* не переносить строку */
+  overflow: hidden; /* обрезать всё, что не влезло */
+  text-overflow: ellipsis; /* добавить "..." */
   padding: 10px;
   border-bottom: 1px solid #2c2c3e;
 }

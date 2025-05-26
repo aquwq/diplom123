@@ -89,9 +89,6 @@ export default function UserStreamView({ user, screenStream, webcamStream, onClo
 
   return (
     <div className="user-stream-view">
-      <button className="close-button" onClick={onClose}>
-        Закрыть
-      </button>
       <h3>Трансляция: {user}</h3>
 
       <div className="streams-container" style={{ display: "flex", gap: "20px" }}>
@@ -151,6 +148,7 @@ export default function UserStreamView({ user, screenStream, webcamStream, onClo
           {isMuted ? "Размутить" : "Замутить"}
         </button>
       </div>
+      
 
       {showFsHint && <div className="fs-hint">Чтобы выйти из полноэкранного режима, нажмите Esc</div>}
     </div>
