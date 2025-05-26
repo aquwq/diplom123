@@ -1,95 +1,64 @@
 import React, { useState, useEffect } from "react";
 import "./UserInfo.css";
-import Notifications from "./Notifications"; // 👈 подключаем
+import Notifications from "./Notifications";
 
 const UserInfo = () => {
   const [isTooltipVisible, setTooltipVisible] = useState(false);
-  const [user, setUser] = useState(null);  // Состояние для данных пользователя
+  const [user, setUser] = useState(null);
 
-  // Пример функции для получения данных о пользователе с бэкенда
+  // Чтение данных из localStorage один раз при монтировании
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const token = localStorage.getItem('access'); // Извлекаем токен с ключом "access"
-        console.log('Токен:', token); // Выводим токен в консоль для проверки
-
-        const response = await fetch("http://localhost:8000/accounts/api/user/", {
-          headers: {
-            "Authorization": `Bearer ${token}`,  // Добавляем токен
-          },
-        });
-
-        console.log('Ответ от сервера:', response); // Логируем сам ответ от сервера
-
-        if (!response.ok) {
-          throw new Error("Ошибка при получении данных");
-        }
-
-        const data = await response.json();
-        console.log('Данные пользователя:', data); // Логируем полученные данные
-        setUser(data);
-
-        if (data?.role) {
-          localStorage.setItem("role", data.role);
-        }
-
-      } catch (error) {
-        console.error("Ошибка:", error);
-      }
+    const storedUser = {
+      name: localStorage.getItem("name"),
+      role: localStorage.getItem("role"),
+      student_number: localStorage.getItem("student_number"),
+      group: localStorage.getItem("group"),
     };
 
-    fetchUserData();
+    if (storedUser.name && storedUser.role) {
+      setUser(storedUser);
+    }
   }, []);
 
-  const handleMouseEnter = () => {
-    setTooltipVisible(true);
-  };
+  const handleMouseEnter = () => setTooltipVisible(true);
+  const handleMouseLeave = () => setTooltipVisible(false);
 
-  const handleMouseLeave = () => {
-    setTooltipVisible(false);
-  };
+  if (!user) return <div>Загрузка...</div>;
 
-  if (!user) {
-    return <div>Загрузка...</div>;  // Пока данные не загружены, отображаем индикатор загрузки
-  }
-
-  // Разделяем имя и инициалы
   const nameParts = user.name.split(" ");
   const lastName = nameParts[0];
-  const initials = nameParts.slice(1).map(name => name[0]).join(".") + "."; // Инициалки
+  const initials = nameParts.slice(1).map(name => name[0]).join(".") + ".";
 
-  const userInfo = (
+  return (
     <div className="user-info">
-      <div className="user-avatar">{lastName[0]}</div> {/* Инициал пользователя */}
+      <div className="user-avatar">{lastName[0]}</div>
       <div
         className="user-details"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <div className="user-name">{lastName} {initials}</div> {/* Фамилия И.О. */}
+        <div className="user-name">{lastName} {initials}</div>
 
         {isTooltipVisible && (
-  <div className="user-tooltip">
-    <div className="user-tooltip-text">
-      <p><strong>ФИО:</strong> {user.name}</p>
+          <div className="user-tooltip">
+            <div className="user-tooltip-text">
+              <p><strong>ФИО:</strong> {user.name}</p>
 
-      {user.role === "студент" && (
-        <>
-          <p><strong>Номер зачётной книжки:</strong> {user.student_number || "Не указано"}</p>
-          <p><strong>Группа:</strong> {user.group || "Не указана"}</p>
-        </>
-      )}
+              {user.role === "студент" && (
+                <>
+                  <p><strong>Номер зачётной книжки:</strong> {user.student_number || "Не указано"}</p>
+                  <p><strong>Группа:</strong> {user.group || "Не указана"}</p>
+                </>
+              )}
 
-      <p><strong>Роль:</strong> {user.role}</p>
-    </div>
-  </div>
-)}
+              <p><strong>Роль:</strong> {user.role}</p>
+            </div>
+          </div>
+        )}
       </div>
-      <Notifications /> {/* 👈 вставляем колокольчик */}
+      <Notifications />
     </div>
   );
-
-  return userInfo;
 };
 
 export default UserInfo;

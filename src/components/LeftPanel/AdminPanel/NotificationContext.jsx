@@ -8,10 +8,11 @@ export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
 
   const addNotification = (newNotification) => {
-    setNotifications((prev) => [
-      { id: Date.now(), isNew: true, ...newNotification },
-      ...prev,
-    ]);
+    setNotifications((prev) => {
+      const exists = prev.some((n) => n.id === newNotification.id);
+      if (exists) return prev;
+      return [{ ...newNotification, isNew: true }, ...prev];
+    });
   };
 
   const clearNotifications = () => {
@@ -26,7 +27,13 @@ export const NotificationProvider = ({ children }) => {
 
   return (
     <NotificationContext.Provider
-      value={{ notifications, addNotification, clearNotifications, markAsRead }}
+      value={{
+        notifications,
+        addNotification,
+        clearNotifications,
+        markAsRead,
+        setNotifications, // 👈 добавляем setNotifications в контекст
+      }}
     >
       {children}
     </NotificationContext.Provider>

@@ -1,6 +1,7 @@
 import React from "react";
 import "./NotificationItem.css";
 
+
 const NotificationItem = ({ title, message, image, isNew, onClick }) => {
   return (
     <div
@@ -15,5 +16,6 @@ const NotificationItem = ({ title, message, image, isNew, onClick }) => {
     </div>
   );
 };
+
 
 export default NotificationItem;

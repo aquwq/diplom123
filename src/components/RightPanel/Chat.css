@@ -108,6 +108,18 @@
   background-color: #3d3d66;
 }
 
+.file-preview {
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.uploading {
+  font-style: italic;
+  color: #888;
+}
+
+
 .chat-input {
   /* Позволяем полю расширяться и сжиматься */
   flex: 1;
