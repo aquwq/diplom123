@@ -1,35 +1,43 @@
-// src/components/UserProfileModal.jsx
 import React, { useState, useEffect } from "react";
 import "./UserProfileModal.css";
 
 function UserProfileModal({ onClose }) {
   const [user, setUser] = useState(null);
+  const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchData = async () => {
       try {
         const token = localStorage.getItem("access");
 
-        const response = await fetch("http://localhost:8000/accounts/api/user/", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const [userResponse, groupsResponse] = await Promise.all([
+          fetch("http://localhost:8000/accounts/api/user/", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch("http://localhost:8000/api/groups/", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
-        if (!response.ok) throw new Error("Ошибка при получении данных");
+        if (!userResponse.ok || !groupsResponse.ok) {
+          throw new Error("Ошибка при получении данных");
+        }
 
-        const data = await response.json();
-        setUser(data);
+        const userData = await userResponse.json();
+        const groupsData = await groupsResponse.json();
+
+        setUser(userData);
+        setGroups(groupsData);
       } catch (error) {
-        console.error("Ошибка при загрузке пользователя:", error);
+        console.error("Ошибка при загрузке:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUserData();
+    fetchData();
   }, []);
 
   if (loading) {
@@ -45,6 +53,9 @@ function UserProfileModal({ onClose }) {
   if (!user) return null;
 
   const nameInitial = user.name ? user.name.charAt(0).toUpperCase() : "?";
+
+  const groupName =
+    groups.find((group) => group.id === user.group)?.name || "Не указана";
 
   return (
     <div className="profile-modal-overlay" onClick={onClose}>
@@ -76,7 +87,7 @@ function UserProfileModal({ onClose }) {
               </div>
               <div className="info-item">
                 <label>Группа:</label>
-                <span>{user.group || "Не указана"}</span>
+                <span>{groupName}</span>
               </div>
             </>
           )}
@@ -86,20 +97,21 @@ function UserProfileModal({ onClose }) {
             <span>{user.email || "Не указан"}</span>
           </div>
         </div>
+
         <div className="help-support">
-            <button className="help-button" onClick={() => setShowHelp(!showHelp)}>❓</button>
-            {showHelp && (
+          <button className="help-button" onClick={() => setShowHelp(!showHelp)}>❓</button>
+          {showHelp && (
             <div className="help-popup">
-            <p><strong>Здравствуйте!</strong><br />Если у вас есть вопросы или неполадки,<br />напишите нам на почту:</p>
-            <p><a href="mailto:testpochta@gmail.com">testpochta@gmail.com</a></p>
-            <ul>
+              <p><strong>Здравствуйте!</strong><br />Если у вас есть вопросы или неполадки,<br />напишите нам на почту:</p>
+              <p><a href="mailto:testpochta@gmail.com">testpochta@gmail.com</a></p>
+              <ul>
                 <li>📌 Название темы</li>
                 <li>👤 Ваше ФИО</li>
                 <li>🎓 Номер группы</li>
-                </ul>
+              </ul>
+            </div>
+          )}
         </div>
-  )}
-</div>
       </div>
     </div>
   );

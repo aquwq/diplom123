@@ -24,9 +24,28 @@ export default function CenterContent({
   const [participants, setParticipants] = useState([]);
   const [activeUser, setActiveUser] = useState(null);
   const [userStreamsMap, setUserStreamsMap] = useState({});
+  const [channelName, setChannelName] = useState("");
+
 
   useEffect(() => {
     if (!isTranslating || !currentChannel) return;
+
+    const fetchChannelName = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:8000/communication/channels/${currentChannel}/get/`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = await res.json();
+      setChannelName(data.name);
+    } catch (err) {
+      console.error("Ошибка загрузки названия канала:", err);
+    }
+  };
+
+  fetchChannelName();
 
     ws.current = new WebSocket(
       `ws://localhost:8000/ws/communication/channels/${currentChannel}/?token=${token}`
@@ -323,9 +342,10 @@ export default function CenterContent({
       {isTranslating ? (
         <div className="conference-view">
           <h2 className="conference-title">
-  Добро пожаловать в канал:{" "}
-  <span className="channel-name">"{currentChannel}"</span>
-</h2>
+            Добро пожаловать в канал:{" "}
+            <span className="channel-name">"{channelName || `ID ${currentChannel}`}"</span>
+          </h2>
+
           <div className="user-tiles-container">
             <UserTiles
               participants={participants}

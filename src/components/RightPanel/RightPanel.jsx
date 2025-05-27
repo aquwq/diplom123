@@ -26,7 +26,7 @@ const updateChannelMessages = (channelId, messages) => {
     const fetchChannelName = async () => {
       try {
         const res = await fetch(
-          `http://localhost:8000/communication/channels/${currentChannel}/`,
+          `http://localhost:8000/communication/channels/${currentChannel}/get/`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -60,7 +60,7 @@ const updateChannelMessages = (channelId, messages) => {
         <div className="content-container">
           <div className="divider" />
           <div className="chat-section">
-            <h2 className="section-title">Чат канала "{currentChannel}"</h2>
+            <h2 className="section-title">Чат канала "{channelName}"</h2>
             <Chat
               messages={messages}
               setMessages={setMessages}
