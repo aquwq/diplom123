@@ -7,6 +7,8 @@ function Login({ onLogin }) {
   const [registered, setRegistered] = useState(false);
 
   const [username, setUsername] = useState("");
+  const [studentNumber, setStudentNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -39,16 +41,13 @@ function Login({ onLogin }) {
         localStorage.setItem("access", data.access);
         localStorage.setItem("refresh", data.refresh);
 
-        // Получаем данные пользователя после получения токена
         const userResponse = await fetch("http://localhost:8000/accounts/api/user/", {
           headers: {
             Authorization: `Bearer ${data.access}`,
           },
         });
 
-        if (!userResponse.ok) {
-          throw new Error("Не удалось получить данные пользователя");
-        }
+        if (!userResponse.ok) throw new Error("Не удалось получить данные пользователя");
 
         const userData = await userResponse.json();
         console.log("Данные пользователя:", userData);
@@ -58,11 +57,9 @@ function Login({ onLogin }) {
           localStorage.setItem("name", userData.name);
           localStorage.setItem("student_number", userData.student_number || "");
           localStorage.setItem("group", userData.group || "");
-
         }
 
-        onLogin(); // Только теперь переходим дальше
-
+        onLogin();
       } else {
         alert("Неверный логин или пароль");
       }
@@ -88,8 +85,9 @@ function Login({ onLogin }) {
           username,
           password,
           name: fullName,
+          email,
           group: groupId,
-          student_number: username,
+          student_number: studentNumber,
         }),
       });
 
@@ -98,9 +96,10 @@ function Login({ onLogin }) {
       if (response.ok) {
         setRegistered(true);
         setFullName("");
-        /*setEmail(""); Строчка для почты*/
+        setEmail("");
         setGroupId("");
         setUsername("");
+        setStudentNumber("");
         setPassword("");
         setConfirmPassword("");
       } else {
@@ -122,13 +121,13 @@ function Login({ onLogin }) {
             Ожидайте подтверждения от администратора.
           </p>
           <button
-          onClick={() => {
-            setIsRegistering(false);
-            setRegistered(false); // <-- добавь это!
-          }}
-        >
-          Назад ко входу
-        </button>
+            onClick={() => {
+              setIsRegistering(false);
+              setRegistered(false);
+            }}
+          >
+            Назад ко входу
+          </button>
         </div>
       </div>
     );
@@ -142,16 +141,22 @@ function Login({ onLogin }) {
       >
         <h2>{isRegistering ? "Регистрация" : "NorVoice"}</h2>
 
-        <input
-          type="text"
-          placeholder="Номер зачётки"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-
-        {isRegistering && (
+        {isRegistering ? (
           <>
+            <input
+              type="text"
+              placeholder="Номер зачётки"
+              value={studentNumber}
+              onChange={(e) => setStudentNumber(e.target.value)}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Придумайте логин"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
             <input
               type="text"
               placeholder="ФИО"
@@ -161,14 +166,13 @@ function Login({ onLogin }) {
               className="fade"
             />
             <input
-              type="text"
+              type="email"
               placeholder="Почта"
-              /* value={Email}
-              onChange={(e) => setEmail(e.target.value)} ЭТА ХУЙНЯ ТОЖЕ ДЛЯ ПОЧТЫ ЗДЕСЬ ВОТ ОНА ПРЯМ ТУТ */
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               className="fade"
             />
-
             <select
               value={groupId}
               onChange={(e) => setGroupId(e.target.value)}
@@ -183,6 +187,14 @@ function Login({ onLogin }) {
               ))}
             </select>
           </>
+        ) : (
+          <input
+            type="text"
+            placeholder="Логин"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
         )}
 
         <input
@@ -214,6 +226,8 @@ function Login({ onLogin }) {
             setIsRegistering((prev) => !prev);
             setRegistered(false);
             setUsername("");
+            setStudentNumber("");
+            setEmail("");
             setPassword("");
             setConfirmPassword("");
             setFullName("");
