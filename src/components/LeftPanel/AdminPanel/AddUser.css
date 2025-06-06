@@ -1,5 +1,5 @@
 .add-user-container {
-  width: 600px;
+  width: 900px;
   max-width: 90vw;
   background: #1e1e2f;
   padding: 20px;
@@ -14,27 +14,26 @@
   max-height: 90vh;      /* не более 90% высоты окна */
   overflow: hidden;      /* скрываем излишки */
 }
-/* Обёртка таблицы — фиксированная высота + скролл */
+
 .table-wrapper {
-  max-height: calc(4 * 40px); /* 4 строки, каждая по 40px */
-  overflow-y: auto; /* Добавляем вертикальную прокрутку */
-  border: 1px solid #ddd; /* Для видимости границ контейнера */
-  border-radius: 8px; /* Скругление углов */
+  max-height: calc(4 * 40px); /* примерно 4 строки */
+  overflow-y: auto;           /* вертикальный скролл для строк */
+  overflow-x: auto;           /* добавляем горизонтальный скролл */
+  border: 1px solid #2c2c3e;
+  border-radius: 8px;
   padding: 10px;
 }
 
-/* Чтобы скроллбар был аккуратнее */
+/* Настроим внешний вид горизонтального скролла */
 .table-wrapper::-webkit-scrollbar {
-  width: 6px;
+  height: 6px;
 }
-
 .table-wrapper::-webkit-scrollbar-thumb {
-  background-color: rgba(255,255,255,0.2);
+  background-color: rgba(255, 255, 255, 0.2);
   border-radius: 3px;
 }
-
 .table-wrapper::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255,255,255,0.4);
+  background-color: rgba(255, 255, 255, 0.4);
 }
 
 .add-user-container h2 {
@@ -57,28 +56,61 @@
   color: #fff;
 }
 
-.table-wrapper {
-  max-height: calc(4 * 40px);
-  overflow-y: auto;    /* только по вертикали */
-  overflow-x: hidden;  /* горизонтальную прокрутку убираем */
-}
-
-
+/* ——— Стили таблицы ——— */
 .user-table {
   width: 100%;
+  min-width: 800px;       /* гарантируем, что при уменьшении контейнера таблица не «схлопнется» */
   border-collapse: collapse;
+  table-layout: fixed;    /* фиксированная модель: колонки по процентам/фикс.ширине */
+  font-size: 14px;        /* чуть меньше шрифт */
 }
 
+/* Заголовки и ячейки */
 .user-table th,
 .user-table td {
-  padding: 10px;
+  padding: 6px 8px;       /* уменьшили от 2px к 6px/8px, чтобы текст не слипался */
   border-bottom: 1px solid #2c2c3e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+/* Цвет фона заголовков и цвет текста */
 .user-table th {
   background: #252538;
   color: #81d4fa;
   text-align: left;
+  font-weight: 600;
+}
+
+/* Фиксированные ширины столбцов (проценты) */
+.user-table th:nth-child(1),
+.user-table td:nth-child(1) {
+  width: 5%;
+}
+.user-table th:nth-child(2),
+.user-table td:nth-child(2) {
+  width: 25%;
+}
+.user-table th:nth-child(3),
+.user-table td:nth-child(3) {
+  width: 15%;
+}
+.user-table th:nth-child(4),
+.user-table td:nth-child(4) {
+  width: 10%;
+}
+.user-table th:nth-child(5),
+.user-table td:nth-child(5) {
+  width: 10%;
+}
+.user-table th:nth-child(6),
+.user-table td:nth-child(6) {
+  width: 10%;
+}
+.user-table th:nth-child(7),
+.user-table td:nth-child(7) {
+  width: 10%;
 }
 
 .user-table tr {
@@ -94,10 +126,35 @@
   background: #383860;
 }
 
+/* Обнуляем отступы и границы у ячейки details, чтобы не расширять таблицу */
+.details-row td {
+  padding: 0;            /* убираем все отступы */
+  border: none;          /* убираем нижние границы */
+  overflow: hidden;      /* никакого «вываливания» содержимого за границы */
+}
+
+/* Содержимое details вытягиваем на всю ширину td и разрешаем перенос длинных слов */
 .details-row .details {
   background: #252538;
   padding: 10px;
   border-radius: 4px;
+  color: #ccc;
+  line-height: 1.5;
+
+  display: block;           /* чтобы width:100% означал ровно ширину ячейки */
+  width: 100%;              /* тянуться ровно по ширине colspan-ячейки */
+  box-sizing: border-box;   /* padding не увеличивает фактическую ширину */
+
+  /* Блокируем горизонтальное растяжение за счёт переноса длинных строк */
+  white-space: normal;      /* текст может переноситься по словам */
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Убираем white-space:nowrap внутри деталей, чтобы текст корректно переносился */
+.details-row .details p {
+  margin: 4px 0;
+  white-space: normal;
 }
 
 .empty-message {
@@ -107,7 +164,7 @@
 }
 
 .buttons-row {
-  display: flex;
+  flex-direction: column;
   justify-content: flex-end;
   gap: 10px;
 }
@@ -166,6 +223,7 @@
 
 .add-user-form .buttons-row {
   display: flex;
+  flex-direction: column;
   justify-content: flex-end;
   gap: 10px;
 }
@@ -196,7 +254,6 @@
 .add-user-form .cancel-button:hover {
   background: #d32f2f;
 }
-
 
 .edit-button {
   background: none;
@@ -287,14 +344,6 @@
   cursor: pointer;
 }
 
-.details {
-  background: #2a2a3d;
-  padding: 10px;
-  border-radius: 6px;
-  color: #ccc;
-  line-height: 1.5;
-}
-
 .new-user {
   background-color: #147918; /* Зеленый фон для новых пользователей */
 }
@@ -323,6 +372,7 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
+
 .confirm-modal button {
   margin: 5px;
 }
@@ -349,11 +399,95 @@
 
 /* Подсветка для новых (неактивных) пользователей */
 .user-table tr.new-user {
-  border: 5px solid #1e6020; /* или другой зелёный оттенок */
+  border: 5px solid #1e6020; /* зелёная рамка */
 }
 
-/* Чтобы рамка не «съедала» ширину, можно немного подвинуть ячейки внутрь */
+/* Чтобы рамка не «съедала» ширину, подвинем ячейки внутрь */
 .user-table tr.new-user td {
   position: relative;
   z-index: 1;
+}
+
+
+@media (max-width: 767px) {
+  /* 1) Сам контейнер станет уже, убираем фиксированный max-width */
+  .add-user-container {
+    width: 100%;
+    padding: 12px;
+  }
+
+  /* 2) Заголовок и поле поиска */
+  .add-user-container h2 {
+    font-size: 20px;
+  }
+  .search-box input {
+    width: 100%;      /* чтобы поле поиска занимало всю ширину */
+    max-width: none;
+  }
+
+  /* 3) Таблица: переключаемся в горизонтальный scroll (уже включён) */
+  .table-wrapper {
+    max-height: none;      /* даём таблице сколько нужно высоты */
+    padding: 0;            /* меньше «воздуха» */
+    border: none;          /* отключаем рамку, чтобы не захламлять */
+    box-shadow: none;
+  }
+
+  .user-table {
+    min-width: 600px;      /* можно чуть уменьшить, чтобы лучше влезало */
+    font-size: 13px;       /* чутка помельче */
+  }
+
+  .user-table th,
+  .user-table td {
+    padding: 6px 6px;      /* ещё компактнее */
+  }
+
+  /* Прячем менее важные колонки (Группа и Зачётка),
+     чтобы освободить место для кнопки ⚙️ и других данных */
+  .user-table th:nth-child(5),
+  .user-table td:nth-child(5),
+  .user-table th:nth-child(6),
+  .user-table td:nth-child(6) {
+    display: none;
+  }
+
+  /* Расширяем «Действия» (⚙️ и ✔️) чуть шире, чтобы кнопки не обрезались */
+  .user-table th:nth-child(7),
+  .user-table td:nth-child(7) {
+    width: 15%;
+  }
+
+  /* Если строки «коллапс» подробностей слишком широки — убираем padding */
+  .details-row .details {
+    padding: 8px;
+    font-size: 13px;
+    width: 100%;
+    box-sizing: border-box;
+    white-space: normal;
+  }
+
+  /* 4) Кнопки «Удалить выбранного» и «Назад» под таблицей */
+  .buttons-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .buttons-row button {
+    
+    padding: 10px 0;
+    font-size: 14px;
+    flex-direction: column;
+  }
+
+  /* 5) Иконка ⚙️ внутри edit-button увеличиваем (чтобы было удобнее тыкать) */
+  .edit-button {
+    font-size: 18px;
+  }
+
+  /* 6) Если хотим, чтобы при клике по строке разворачивались детали,
+     то текст в ячейках должен обрезаться многоточием */
+  .user-table td {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 }

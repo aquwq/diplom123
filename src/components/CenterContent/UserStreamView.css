@@ -71,6 +71,7 @@
   gap: 10px;
   min-width: 280px;
   transition: transform 0.3s ease;
+  overflow: auto;
 }
 
 .stream-container:hover {
@@ -152,6 +153,8 @@
   background-color: #b71c1c;
 }
 
+
+
 .muted {
   background-color: #555;
 }
@@ -170,4 +173,9 @@
   z-index: 999;
   animation: fadeIn 0.4s ease;
   box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+}
+
+
+.streams-container {
+overflow-y: auto;
 }

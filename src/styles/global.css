@@ -1,67 +1,60 @@
-/* Появление глобальных стилей */
+/* global.css */
 * {
   box-sizing: border-box;
 }
 
-/* Общее оформление для всех элементов */
 body {
   margin: 0;
   font-family: "Poppins", Arial, sans-serif;
-  background-color: #2b2b2b; /* Тёмный фон */
+  background-color: #2b2b2b;
   color: white;
 }
 
+/* Базовый grid-контейнер */
 .app-container {
   display: grid;
-  box-sizing: border-box;
   height: 100vh;
+  width: 100vw;
+  overflow: hidden;
   background: linear-gradient(-45deg, #1e1e2f, #252540, #1a1a2e, #101020);
   background-size: 200% 200%;
   animation: gradientBG 10s ease-in-out infinite;
   transition: filter 0.7s ease;
-  grid-template-columns: auto 300px; /* Центр и правая панель */
-  
-  overflow: hidden;
 }
 
-
-
-/* когда обе панели видны */
-.app-container.sidebar-visible.right-visible {
-  grid-template-columns: 260px auto 300px;
+/* На десктопе, когда левая панель видна */
+.app-container.left-visible {
+  /* 3 колонки: 260px (Left), 1fr (Center), 300px (Right) */
+  grid-template-columns: 260px 1fr 300px;
 }
 
-/* когда левая скрыта, правая видна */
-.app-container.sidebar-hidden.right-visible {
-  grid-template-columns: 0 auto 300px;
+/* На десктопе, когда левая панель скрыта */
+.app-container.left-hidden {
+  /* 3 колонки: 0 (Left), 1fr (Center), 300px (Right) */
+  grid-template-columns: 0     1fr 300px;
 }
 
-/* когда левая видна, правая скрыта */
-.app-container.sidebar-visible.right-hidden {
-  grid-template-columns: 260px auto 0;
+/* → МЕДИА-ПРАВИЛА: скрываем правую колонку ниже 768px ширины экрана */
+@media (max-width: 767px) {
+  /* вне зависимости от left-visible/left-hidden, делаем 2 колонки */
+  .app-container.left-visible {
+    /* 260px + 1fr; 3-й столбец удалён */
+    grid-template-columns: 260px 1fr !important;
+  }
+  .app-container.left-hidden {
+    /* 0 + 1fr; 3-й столбец удалён */
+    grid-template-columns: 0 1fr !important;
+  }
+
+  /* Скрываем RightPanel, чтобы он не занимал место */
+  .right-panel {
+    display: none !important;
+  }
 }
 
-/* когда обе скрыты */
-.app-container.sidebar-hidden.right-hidden {
-  grid-template-columns: 0 auto 0;
-}
-
-/* Эффект размытия для интерфейса */
-.blurred {
-  filter: blur(5px); /* Применяем размытие */
-  pointer-events: none; /* Блокируем взаимодействие с размытым контентом */
-  user-select: none; /* Отключаем возможность выделения текста */
-}
-
-/* Анимация фона */
+/* Анимация плавного градиента background */
 @keyframes gradientBG {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }

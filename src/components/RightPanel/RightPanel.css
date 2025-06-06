@@ -1,13 +1,17 @@
 /* RightPanel.css */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+/* Теперь убираем position: fixed и жёсткую ширину */
+
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap");
+
 .right-panel {
-  font-family: 'Montserrat', sans-serif;
-  position: fixed;
+  font-family: "Montserrat", sans-serif;
+  /* position: fixed; ← убрали */
+  /* right: 0;       ← убрали */
   display: flex;
-  top: 0;
-  right: 0;
-  width: 260px;
+  grid-column: 3;       /* третья колонка grid */
+  position: relative;   /* ← добавили */
   height: 100vh;
+  width: 100%;          /* ширина управляется через inline-prop */
   background-color: #1e1e2f;
   box-sizing: border-box;
   overflow: hidden;
@@ -16,22 +20,20 @@
   transition: width 0.3s ease;
 }
 
-
 .content-container {
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow-y: auto;
-   background-color:#1e1e2f;
+  background-color: #1e1e2f;
 }
-
 
 .chat-section {
   position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
-   background-color: #1e1e2f;
+  background-color: #1e1e2f;
   border-radius: 8px;
   overflow-y: auto;
   margin-bottom: 10px;
@@ -39,25 +41,23 @@
 }
 
 .chat-section::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 10px;
-  
   z-index: 1;
   pointer-events: none;
 }
 
 .chat-section::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   height: 10px;
- 
   z-index: 1;
   pointer-events: none;
 }
@@ -120,6 +120,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

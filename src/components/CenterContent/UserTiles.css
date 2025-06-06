@@ -144,3 +144,90 @@
     background-color: #ff3d00;
   }
 }
+
+
+
+/* 1) Делаем карточки в две колонки + вертикальный скролл */
+  .user-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    padding: 12px;
+    background: #1e1e1e;        /* оставляем ваш фон */
+    border-radius: 12px;
+    box-sizing: border-box;
+    position: relative;
+    max-height: 30vh;           /* ограничиваем высоту до 30% экрана */
+    overflow-y: auto;           /* включаем прокрутку */
+    animation: none;            /* можно убрать анимацию при первом появлении */
+  }
+
+  /* Делаем скролл-бар невидимым (если нужно) */
+  .user-tiles::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+  .user-tiles {
+    scrollbar-width: none;
+  }
+
+  /* 2) Общеизвестный градиент внизу оставляем без изменений */
+  .user-tiles::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 32px;
+    background: linear-gradient(rgba(30, 30, 30, 0), rgba(30, 30, 30, 1));
+    pointer-events: none;
+  }
+
+  /* 3) «Стрим» (второй блок) пусть займёт примерно 40–50% экрана */
+  .user-stream-wrapper {
+    width: 100%;
+    /* можно дать что-то вроде min-height, чтобы не очень уж «схлопывался» */
+    min-height: 40vh;
+    /* overflow-y: auto; */  /* если внутри тоже скроллится видео */
+    margin-bottom: 12px;
+  }
+
+  /* 4) Кнопки внизу — уже были */
+  .controls {
+    grid-area: controls;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .controls button {
+    flex: 0 1 auto;
+    min-width: 100px;
+    max-width: 40%;
+    margin-bottom: 8px;
+  }
+  .record-button {
+    margin-left: 0;
+    flex: 0 1 auto;
+    min-width: 100px;
+    max-width: 40%;
+    margin-bottom: 8px;
+    background-color: transparent;
+    padding: 0;
+  }
+  .record-button button {
+    width: 100%;
+    padding: 12px;
+    background-color: #ff4d4d;
+    border-radius: 5px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  .record-button button:hover {
+    background-color: #e60000;
+  }

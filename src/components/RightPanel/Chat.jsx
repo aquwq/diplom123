@@ -32,11 +32,14 @@ function Chat({ currentChannel, messages, setMessages }) {
   // Формат имени, например: Иван И.
   const formatUserName = (fullName) => {
     const parts = fullName.split(" ");
-    if (parts.length >= 2) {
-      return `${parts[0]} ${parts[1].charAt(0)}.`;
+    if (parts.length >= 3) {
+      return `${parts[0]} ${parts[1].charAt(0)}.${parts[2].charAt(0)}`;
+    } else if (parts.length === 2) {
+      return `${parts[0]} ${parts[1].charAt(0)}`;
     }
     return fullName;
   };
+
 
   // Загружаем историю сообщений при смене канала
   const fetchMessages = async (channelId) => {

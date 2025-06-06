@@ -18,15 +18,39 @@ export default function CenterContent({
   const webcamStream = useRef(null);
   const screenStream = useRef(null);
 
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef(null);
+const recordedChunksRef = useRef([]);
+
+
   const [isMicOn, setIsMicOn] = useState(false);
   const [isWebcamOn, setIsWebcamOn] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [participants, setParticipants] = useState([]);
   const [activeUser, setActiveUser] = useState(null);
   const [userStreamsMap, setUserStreamsMap] = useState({});
+  const [channelName, setChannelName] = useState("");
+
 
   useEffect(() => {
     if (!isTranslating || !currentChannel) return;
+
+    const fetchChannelName = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:8000/communication/channels/${currentChannel}/get/`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = await res.json();
+      setChannelName(data.name);
+    } catch (err) {
+      console.error("Ошибка загрузки названия канала:", err);
+    }
+  };
+
+  fetchChannelName();
 
     ws.current = new WebSocket(
       `ws://localhost:8000/ws/communication/channels/${currentChannel}/?token=${token}`
@@ -314,6 +338,63 @@ export default function CenterContent({
     }
   };
 
+  const handleToggleRecording = () => {
+  setIsRecording((prev) => !prev);
+  // TODO: добавить запись аудио и отправку на нейросеть
+  console.log(isRecording ? "Остановить запись" : "Начать запись");
+};
+
+const startRecording = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    micStream.current = stream;
+
+    const options = { mimeType: 'audio/webm' }; // или 'audio/ogg'
+    const mediaRecorder = new MediaRecorder(stream, options);
+    recordedChunksRef.current = [];
+
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        recordedChunksRef.current.push(event.data);
+      }
+    };
+
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(recordedChunksRef.current, { type: 'audio/webm' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = "recording.webm";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    };
+
+    mediaRecorder.start();
+    mediaRecorderRef.current = mediaRecorder;
+    setIsRecording(true);
+  } catch (err) {
+    console.error("Ошибка записи:", err);
+  }
+};
+
+const stopRecording = () => {
+  if (mediaRecorderRef.current) {
+    mediaRecorderRef.current.stop();
+    mediaRecorderRef.current = null;
+  }
+
+  if (micStream.current) {
+    micStream.current.getTracks().forEach((t) => t.stop());
+    micStream.current = null;
+  }
+
+  setIsRecording(false);
+};
+
+
   const containerClass = panelVisible
     ? "center-content with-panel"
     : "center-content full-width";
@@ -323,9 +404,10 @@ export default function CenterContent({
       {isTranslating ? (
         <div className="conference-view">
           <h2 className="conference-title">
-  Добро пожаловать в канал:{" "}
-  <span className="channel-name">"{currentChannel}"</span>
-</h2>
+            Пара{" "}
+            <span className="channel-name">"{channelName || `ID ${currentChannel}`}"</span>
+          </h2>
+
           <div className="user-tiles-container">
             <UserTiles
               participants={participants}
@@ -364,6 +446,14 @@ export default function CenterContent({
             <button onClick={toggleWebcam}>
               {isWebcamOn ? "Выключить вебку" : "Включить вебку"}
             </button>
+
+             <div className="record-button">
+  {!isRecording ? (
+    <button onClick={startRecording}>🎙 Начать запись</button>
+  ) : (
+    <button onClick={stopRecording}>⏹ Остановить запись</button>
+  )}
+</div>
             
             <button className="back-button" onClick={onCloseTranslating}>
               На главную

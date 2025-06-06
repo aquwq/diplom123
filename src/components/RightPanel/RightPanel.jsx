@@ -4,18 +4,18 @@ import "./RightPanel.css";
 import Chat from "./Chat";
 import { FiMessageCircle } from "react-icons/fi";
 
-function RightPanel({ currentChannel, width }) {
+function RightPanel({ className, currentChannel, width, onResize }) {
   const [participants, setParticipants] = useState([]);
   const [channelName, setChannelName] = useState("");
   const [messages, setMessages] = useState([]);
-const [messagesByChannel, setMessagesByChannel] = useState({});
+  const [messagesByChannel, setMessagesByChannel] = useState({});
 
-const updateChannelMessages = (channelId, messages) => {
-  setMessagesByChannel((prev) => ({
-    ...prev,
-    [channelId]: messages,
-  }));
-};
+  const updateChannelMessages = (channelId, messages) => {
+    setMessagesByChannel((prev) => ({
+      ...prev,
+      [channelId]: messages,
+    }));
+  };
 
   useEffect(() => {
     if (!currentChannel) return;
@@ -26,7 +26,7 @@ const updateChannelMessages = (channelId, messages) => {
     const fetchChannelName = async () => {
       try {
         const res = await fetch(
-          `http://localhost:8000/communication/channels/${currentChannel}/`,
+          `http://localhost:8000/communication/channels/${currentChannel}/get/`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -55,12 +55,16 @@ const updateChannelMessages = (channelId, messages) => {
   }, [currentChannel]);
 
   return (
-    <div className="right-panel" style={{ width: `${width}px` }}>
+    // Обратите внимание: прокинули className и будет применяться медиа-правило display:none
+    <div
+      className={`${className} right-panel`}
+      style={{ width: `${width}px` }} /* ширина через проп, а не жёстко в CSS */
+    >
       {currentChannel ? (
         <div className="content-container">
           <div className="divider" />
           <div className="chat-section">
-            <h2 className="section-title">Чат канала "{currentChannel}"</h2>
+            <h2 className="section-title">Чат канала "{channelName}"</h2>
             <Chat
               messages={messages}
               setMessages={setMessages}

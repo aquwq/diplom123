@@ -1,49 +1,51 @@
+// MainPage.jsx
 import React, { useState } from "react";
 import LeftPanel from "../components/LeftPanel/LeftPanel";
 import CenterContent from "../components/CenterContent/CenterContent";
 import RightPanel from "../components/RightPanel/RightPanel";
+import "../styles/global.css";
 
 function MainPage({
   onChannelClick,
   currentChannel,
   isTranslating,
   onCloseTranslating,
-  isAppMenuOpen
 }) {
-  const [panelsVisible, setPanelsVisible] = useState(true);
-  const [rightPanelWidth, setRightPanelWidth] = useState(300);
+  const [leftVisible, setLeftVisible] = useState(true);
+  const [rightWidth, setRightWidth] = useState(300);
 
-  const togglePanelsVisibility = () => setPanelsVisible(v => !v);
+  const toggleLeft = () => setLeftVisible((v) => !v);
+
+  // теперь сетку будем переключать через CSS-классы, а не inline style
+  const containerClass = leftVisible
+    ? "app-container left-visible"
+    : "app-container left-hidden";
 
   return (
-    <div
-      className={`app-container 
-        ${isAppMenuOpen ? "blurred" : ""} 
-        ${panelsVisible ? "sidebar-visible" : "sidebar-hidden"}
-      `}
-    >
+    <div className={containerClass}>
       <LeftPanel
         onChannelClick={onChannelClick}
-        panelVisible={panelsVisible}
-        togglePanelVisibility={togglePanelsVisibility}
+        panelVisible={leftVisible}
+        togglePanelVisibility={toggleLeft}
       />
 
-      <div className="content-wrapper">
-        <CenterContent
-          isTranslating={isTranslating}
-          onCloseTranslating={onCloseTranslating}
-          currentChannel={currentChannel}
-          panelVisible={panelsVisible}
-          rightPanelWidth={rightPanelWidth}
-        />
-        <RightPanel
-          currentChannel={currentChannel}
-          panelVisible={panelsVisible}
-          isTranslating={isTranslating}
-          width={rightPanelWidth}
-          onResize={setRightPanelWidth}
-        />
-      </div>
+      <CenterContent
+        isTranslating={isTranslating}
+        onCloseTranslating={onCloseTranslating}
+        currentChannel={currentChannel}
+        leftVisible={leftVisible}
+        rightWidth={rightWidth}
+      />
+
+      {/* Обязательно прокидываем className="right-panel" */}
+      <RightPanel
+        className="right-panel"
+        currentChannel={currentChannel}
+        panelVisible={true}
+        isTranslating={isTranslating}
+        width={rightWidth}
+        onResize={setRightWidth}
+      />
     </div>
   );
 }

@@ -147,6 +147,7 @@ export default function UserStreamView({ user, screenStream, webcamStream, onClo
         >
           {isMuted ? "Размутить" : "Замутить"}
         </button>
+        
       </div>
       
 

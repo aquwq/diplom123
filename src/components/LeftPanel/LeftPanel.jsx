@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./LeftPanel.css";
 import ChannelList from "./ChannelList";
-import AppMenu from "./AppMenu";
+
 import AdminPanel from "./AdminPanel/AdminPanel";
 import UserInfo from "./UserInfo";
 import UserProfileModal from "./UserProfileModal"; // импорт
@@ -38,12 +38,14 @@ function LeftPanel({
       <aside
         className={`left-panel sidebar ${
           !panelVisible ? "hidden-panel" : ""
-        } ${showAppMenu || showAdminPanel ? "blurred" : ""}`}
+        } showAdminPanel ?`}
       >
         <div className="panel-header">
-          <span className="logo">💬</span>
-          <h1 className="app-title">ISITvoice</h1>
-        </div>
+  <span className="logo">💬</span>
+  <a href="https://polaruniversity.ru/" target="_blank" rel="noopener noreferrer">
+    <h1 className="app-title">ISITvoice</h1>
+  </a>
+</div>
 
         <div className="channel-section">
           <div className="channels-header" onClick={() => setChannelsVisible(v => !v)}>
@@ -56,9 +58,7 @@ function LeftPanel({
         </div>
 
         <div className="icon-buttons">
-          <button className="icon-button app-button" onClick={() => setShowAppMenu(m => !m)} title="Приложения">
-            <FiGrid size={20} />
-          </button>
+          
           {role && role !== "студент" && (
             <button className="icon-button admin-button" onClick={() => setShowAdminPanel(m => !m)} title="Админка">
               <FiSettings size={20} />
@@ -67,6 +67,7 @@ function LeftPanel({
         </div>
 
         <div className="bottom-section">
+          
           <button className="icon-button logout-button" onClick={() => {
             localStorage.clear();
             window.location.reload();
@@ -80,7 +81,7 @@ function LeftPanel({
         </div>
       </aside>
 
-      {showAppMenu && <AppMenu onClose={() => setShowAppMenu(false)} />}
+      
       {showAdminPanel && <AdminPanel onClose={() => setShowAdminPanel(false)} />}
         {showUserModal && (
   <UserProfileModal
